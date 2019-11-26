@@ -3,33 +3,45 @@
 /*                                                        :::      ::::::::   */
 /*   vkClassVulkan.hpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vrichese <vrichese@student.42.fr>          +#+  +:+       +#+        */
+/*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/14 13:59:07 by vrichese          #+#    #+#             */
-/*   Updated: 2019/11/23 20:36:58 by vrichese         ###   ########.fr       */
+/*   Updated: 2019/11/26 20:49:27 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef VK_CLASS_VULKAN_HPP
 # define VK_CLASS_VULKAN_HPP
 
+typedef struct	instanceInfo_s
+{
+	u_int32_t	availableInstanceLayersCount	= 0;
+	u_int32_t	selectedInstanceLayersCount		= 0;
+
+	u_int32_t	availableInstanceExtensionsCount	= 0;
+	u_int32_t	selectedInstanceExtensionsCount		= 0;
+
+	std::vector<VkLayerProperties>		pAvailableInstanceLayers;
+	std::vector<const char *>			ppAvailableInstanceLayersNames;
+
+	std::vector<VkExtensionProperties>	pAvailableInstanceExtensions;
+	std::vector<const char *>			ppAvailableInstanceExtensionsNames;
+
+	VkApplicationInfo		sAppCreateInfo		= {};
+
+	VkInstanceCreateInfo	sInstanceCreateInfo	= {};
+	VkInstance				instanceObject		= VK_NULL_HANDLE;
+}				instanceInfo_t;
+
+typedef struct	surfaceInfo_s
+{
+	;
+}				surfaceInfo_t;
+
 class Vulkan
 {
 	public:
-		/*
-		** Instance Object creating and handle --------------------------------------------
-		*/
-		VkInstance				instanceObj								= VK_NULL_HANDLE;
-		VkApplicationInfo		sAppCreateInfo							= {};
-		VkInstanceCreateInfo	sInstanceCreateInfo						= {};
-		u_int32_t				availableInstanceLayersCount			= 0;
-		u_int32_t				selectedInstanceLayersCount				= 0;
-		VkLayerProperties		*pAvailableInstanceLayers				= nullptr;
-		const char				**ppAvailableInstanceLayersNames		= nullptr;
-		u_int32_t				availableInstanceExtensionsCount		= 0;
-		u_int32_t				selectedInstanceExtensionsCount			= 0;
-		VkExtensionProperties	*pAvailableInstanceExtensions			= nullptr;
-		const char 				**ppAvailableInstanceExtensionsNames	= nullptr;
+		instanceInfo_t instanceProperties;
 		/*
 		** Window surface choosing and setup
 		*/
@@ -152,6 +164,8 @@ class Vulkan
 		void 				vkCreateNewSemaphore();
 
 		void				vkDrawFrame();
+
+		void				fbCleanUp();
 };
 
 #endif

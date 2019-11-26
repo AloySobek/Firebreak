@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   vkVulkanMethods.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: vrichese <vrichese@student.42.fr>          +#+  +:+       +#+        */
+/*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/14 13:55:17 by vrichese          #+#    #+#             */
-/*   Updated: 2019/11/23 20:36:53 by vrichese         ###   ########.fr       */
+/*   Updated: 2019/11/26 20:49:26 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,31 +48,33 @@ void Vulkan::run(GLFWwindow *pWindow)
 	vkCreateNewCommandBuffers();
 
 	vkCreateNewSemaphore();
+
+	fbCleanUp();
 }
 
 void Vulkan::vkSetupAppInfo()
 {
-	sAppCreateInfo.sType				= VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	sAppCreateInfo.pApplicationName		= "VulkanLearn";
-	sAppCreateInfo.applicationVersion	= VK_MAKE_VERSION(1, 0, 0);
-	sAppCreateInfo.pEngineName			= "NoEngine";
-	sAppCreateInfo.engineVersion		= VK_MAKE_VERSION(1, 0, 0);
-	sAppCreateInfo.apiVersion			= VK_API_VERSION_1_1;
-	sAppCreateInfo.pNext				= nullptr;
+	instanceProperties.sAppCreateInfo.sType					= VK_STRUCTURE_TYPE_APPLICATION_INFO;
+	instanceProperties.sAppCreateInfo.pApplicationName		= "VulkanLearn";
+	instanceProperties.sAppCreateInfo.applicationVersion	= VK_MAKE_VERSION(1, 0, 0);
+	instanceProperties.sAppCreateInfo.pEngineName			= "NoEngine";
+	instanceProperties.sAppCreateInfo.engineVersion			= VK_MAKE_VERSION(1, 0, 0);
+	instanceProperties.sAppCreateInfo.apiVersion			= VK_API_VERSION_1_1;
+	instanceProperties.sAppCreateInfo.pNext					= nullptr;
 }
 
 void Vulkan::vkSetupInstanceLayers()
 {
-	vkEnumerateInstanceLayerProperties(&availableInstanceLayersCount, nullptr);
-	pAvailableInstanceLayers		= (VkLayerProperties *)malloc(sizeof(VkLayerProperties) * availableInstanceLayersCount);
-	ppAvailableInstanceLayersNames	= (const char **)malloc(sizeof(const char *) * availableInstanceLayersCount);
-	vkEnumerateInstanceLayerProperties(&availableInstanceLayersCount, pAvailableInstanceLayers);
-	for (int i = 0, j = 0; i < availableInstanceLayersCount; ++i)
+	vkEnumerateInstanceLayerProperties(&instanceProperties.availableInstanceLayersCount, nullptr);
+	instanceProperties.pAvailableInstanceLayers.resize(instanceProperties.availableInstanceLayersCount);
+	instanceProperties.ppAvailableInstanceLayersNames.resize(instanceProperties.availableInstanceLayersCount);
+	vkEnumerateInstanceLayerProperties(&instanceProperties.availableInstanceLayersCount, instanceProperties.pAvailableInstanceLayers.data());
+	for (int i = 0, j = 0; i < instanceProperties.availableInstanceLayersCount; ++i)
 	{
-		if (vkIsLayerSuitable(pAvailableInstanceLayers[i]))
+		if (vkIsLayerSuitable(instanceProperties.pAvailableInstanceLayers[i]))
 		{
-			ppAvailableInstanceLayersNames[j++] = pAvailableInstanceLayers[i].layerName;
-			++selectedInstanceLayersCount;
+			instanceProperties.ppAvailableInstanceLayersNames[j++] = instanceProperties.pAvailableInstanceLayers[i].layerName;
+			++instanceProperties.selectedInstanceLayersCount;
 		}
 	}
 }
@@ -81,7 +83,16 @@ bool Vulkan::vkIsLayerSuitable(VkLayerProperties sLayer)
 {
 	char choose;
 
-	if (USER_CHOOSE)
+	if (ALL_LAYER_OFF)
+		return (false);
+	else if (ONE_LAYER_MODE)
+	{
+		if (!strcmp(sLayer.layerName, "VK_LAYER_KHRONOS_validation"))
+			return (true);
+		else
+			return (false);
+	}
+	else if (USER_CHOOSE)
 	{
 		std::cout << "Next Layer suggest to apply to your project: " << sLayer.layerName << std::endl;
 		std::cout << "Do you wish to apply it? (Y / N)\n";
@@ -93,29 +104,21 @@ bool Vulkan::vkIsLayerSuitable(VkLayerProperties sLayer)
 			return (false);
 	}
 	else
-		if (ONE_LAYER_MODE)
-			if (!strcmp(sLayer.layerName, "VK_LAYER_KHRONOS_validation"))
-				return (true);
-			else
-				return (false);
-		else if (ALL_LAYER_OFF)
-			return (false);
-		else
-			return (true);
+		return (true);
 }
 
 void Vulkan::vkSetupInstanceExtensions()
 {
-	vkEnumerateInstanceExtensionProperties(nullptr, &availableInstanceExtensionsCount, nullptr);
-	pAvailableInstanceExtensions		= (VkExtensionProperties *)malloc(sizeof(VkExtensionProperties) * availableInstanceExtensionsCount);
-	ppAvailableInstanceExtensionsNames	= (const char **)malloc(sizeof(const char *) * availableInstanceExtensionsCount);
-	vkEnumerateInstanceExtensionProperties(nullptr, &availableInstanceExtensionsCount, pAvailableInstanceExtensions);
-	for (int i = 0, j = 0; i < availableInstanceExtensionsCount; ++i)
+	vkEnumerateInstanceExtensionProperties(nullptr, &instanceProperties.availableInstanceExtensionsCount, nullptr);
+	instanceProperties.pAvailableInstanceExtensions.resize(instanceProperties.availableInstanceExtensionsCount);
+	instanceProperties.ppAvailableInstanceExtensionsNames.resize(instanceProperties.availableInstanceExtensionsCount);
+	vkEnumerateInstanceExtensionProperties(nullptr, &instanceProperties.availableInstanceExtensionsCount, instanceProperties.pAvailableInstanceExtensions.data());
+	for (int i = 0, j = 0; i < instanceProperties.availableInstanceExtensionsCount; ++i)
 	{
-		if (vkIsExtensionSuitable(pAvailableInstanceExtensions[i]))
+		if (vkIsExtensionSuitable(instanceProperties.pAvailableInstanceExtensions[i]))
 		{
-			ppAvailableInstanceExtensionsNames[j++] = pAvailableInstanceExtensions[i].extensionName;
-			++selectedInstanceExtensionsCount;
+			instanceProperties.ppAvailableInstanceExtensionsNames[j++] = instanceProperties.pAvailableInstanceExtensions[i].extensionName;
+			++instanceProperties.selectedInstanceExtensionsCount;
 		}
 	}
 }
@@ -129,19 +132,19 @@ bool Vulkan::vkIsExtensionSuitable(VkExtensionProperties sExtension)
 
 void Vulkan::vkSetupInstanceCreateInfo()
 {
-	sInstanceCreateInfo.sType						= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	sInstanceCreateInfo.flags						= 0;
-	sInstanceCreateInfo.pNext 						= nullptr;
-	sInstanceCreateInfo.pApplicationInfo			= &sAppCreateInfo;
-	sInstanceCreateInfo.enabledLayerCount			= selectedInstanceLayersCount;
-	sInstanceCreateInfo.ppEnabledLayerNames			= ppAvailableInstanceLayersNames;
-	sInstanceCreateInfo.enabledExtensionCount		= selectedInstanceExtensionsCount;
-	sInstanceCreateInfo.ppEnabledExtensionNames		= ppAvailableInstanceExtensionsNames;
+	instanceProperties.sInstanceCreateInfo.sType					= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+	instanceProperties.sInstanceCreateInfo.flags					= 0;
+	instanceProperties.sInstanceCreateInfo.pNext 					= nullptr;
+	instanceProperties.sInstanceCreateInfo.pApplicationInfo			= &instanceProperties.sAppCreateInfo;
+	instanceProperties.sInstanceCreateInfo.enabledLayerCount		= instanceProperties.selectedInstanceLayersCount;
+	instanceProperties.sInstanceCreateInfo.ppEnabledLayerNames		= instanceProperties.ppAvailableInstanceLayersNames.data();
+	instanceProperties.sInstanceCreateInfo.enabledExtensionCount	= instanceProperties.selectedInstanceExtensionsCount;
+	instanceProperties.sInstanceCreateInfo.ppEnabledExtensionNames	= instanceProperties.ppAvailableInstanceExtensionsNames.data();
 }
 
 void Vulkan::vkCreateInstanceObj()
 {
-	if ((error = vkCreateInstance(&sInstanceCreateInfo, nullptr, &instanceObj)) != VK_SUCCESS)
+	if ((error = vkCreateInstance(&instanceProperties.sInstanceCreateInfo, nullptr, &instanceProperties.instanceObject)) != VK_SUCCESS)
 	{
 		std::cout << "Error occured: " << error << std::endl;
 		throw std::runtime_error(nullptr);
@@ -150,7 +153,7 @@ void Vulkan::vkCreateInstanceObj()
 
 void Vulkan::vkCreateSurface(GLFWwindow *pWindow)
 {
-	if ((error = glfwCreateWindowSurface(instanceObj, pWindow, nullptr, &surfaceObj)))
+	if ((error = glfwCreateWindowSurface(instanceProperties.instanceObject, pWindow, nullptr, &surfaceObj)))
 	{
 		std::cout << "Code of error: " << error << std::endl;
 		throw std::runtime_error("Failed to create window surface");
@@ -159,9 +162,9 @@ void Vulkan::vkCreateSurface(GLFWwindow *pWindow)
 
 void Vulkan::vkChoosePhysicalDeviceObj()
 {
-	vkEnumeratePhysicalDevices(instanceObj, &availablePhysicalDeviceCount, nullptr);
+	vkEnumeratePhysicalDevices(instanceProperties.instanceObject, &availablePhysicalDeviceCount, nullptr);
 	pAvailablePhysicalDevices = (VkPhysicalDevice *)malloc(sizeof(VkPhysicalDevice) * availablePhysicalDeviceCount);
-	vkEnumeratePhysicalDevices(instanceObj, &availablePhysicalDeviceCount, pAvailablePhysicalDevices);
+	vkEnumeratePhysicalDevices(instanceProperties.instanceObject, &availablePhysicalDeviceCount, pAvailablePhysicalDevices);
 	for (int i = 0; i < availablePhysicalDeviceCount; ++i)
 	{
 		if (vkIsDeviceSuitable(pAvailablePhysicalDevices[i]))
@@ -873,4 +876,9 @@ void Vulkan::vkDrawFrame()
 	present.pImageIndices = &imageIndex;
 	present.pResults = nullptr;
 	vkQueuePresentKHR(presentQueueFamily, &present);
+}
+
+void	Vulkan::fbCleanUp()
+{
+	vkDestroyInstance(instanceProperties.instanceObject, nullptr);
 }
