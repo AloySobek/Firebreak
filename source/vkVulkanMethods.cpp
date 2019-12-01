@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/14 13:55:17 by vrichese          #+#    #+#             */
-/*   Updated: 2019/11/27 14:08:56 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/01 20:23:37 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,12 +88,12 @@ namespace PhysicalDeviceLayersExtensions
 
 void Vulkan::run(GLFWwindow *pWindow)
 {
-	vkSetupAppInfo();
-	vkSetupInstanceLayers();
-	vkSetupInstanceExtensions();
-	vkSetupInstanceCreateInfo();
-	vkCreateInstanceObj();
-
+	instance.provideLayersExtensions(InstanceLayersExtensions::ppDesiredLayers,
+								InstanceLayersExtensions::ppDesiredExtensions);
+	instance.init(nullptr, nullptr, VK_MAKE_VERSION(1, 0, 0), VK_MAKE_VERSION(1, 0, 0));
+	instance.findDevice(VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU,
+							PhysicalDeviceLayersExtensions::ppDesiredLayers,
+								PhysicalDeviceLayersExtensions::ppDesiredExtensions);
 	vkCreateSurface(pWindow);
 
 	vkChoosePhysicalDeviceObj();
@@ -126,123 +126,13 @@ void Vulkan::run(GLFWwindow *pWindow)
 	fbCleanUp();
 }
 
-void Vulkan::vkSetupAppInfo()
-{
-	instanceProperties.sAppCreateInfo.sType					= VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	instanceProperties.sAppCreateInfo.pApplicationName		= "VulkanLearn";
-	instanceProperties.sAppCreateInfo.applicationVersion	= VK_MAKE_VERSION(1, 0, 0);
-	instanceProperties.sAppCreateInfo.pEngineName			= "NoEngine";
-	instanceProperties.sAppCreateInfo.engineVersion			= VK_MAKE_VERSION(1, 0, 0);
-	instanceProperties.sAppCreateInfo.apiVersion			= VK_API_VERSION_1_1;
-	instanceProperties.sAppCreateInfo.pNext					= nullptr;
-}
-
-void Vulkan::vkSetupInstanceLayers()
-{
-	vkEnumerateInstanceLayerProperties(&instanceProperties.availableInstanceLayersCount, nullptr);
-	instanceProperties.pAvailableInstanceLayers.resize(instanceProperties.availableInstanceLayersCount);
-	instanceProperties.ppAvailableInstanceLayersNames.resize(instanceProperties.availableInstanceLayersCount);
-	vkEnumerateInstanceLayerProperties(&instanceProperties.availableInstanceLayersCount, instanceProperties.pAvailableInstanceLayers.data());
-	for (int i = 0, j = 0; i < instanceProperties.availableInstanceLayersCount; ++i)
-	{
-		if (vkIsLayerSuitable(instanceProperties.pAvailableInstanceLayers[i]))
-		{
-			instanceProperties.ppAvailableInstanceLayersNames[j++] = instanceProperties.pAvailableInstanceLayers[i].layerName;
-			++instanceProperties.selectedInstanceLayersCount;
-		}
-	}
-}
-
-bool Vulkan::vkIsLayerSuitable(VkLayerProperties sLayer)
-{
-	for (int i = 0; i < InstanceLayersExtensions::ppDesiredLayers.size(); ++i)
-		if (!strcmp(InstanceLayersExtensions::ppDesiredLayers[i], sLayer.layerName))
-			return (true);
-	for (int i = 0; i < PhysicalDeviceLayersExtensions::ppDesiredLayers.size(); ++i)
-		if (!strcmp(PhysicalDeviceLayersExtensions::ppDesiredLayers[i], sLayer.layerName))
-			return (true);
-	return (false);
-}
-
-void Vulkan::vkSetupInstanceExtensions()
-{
-	vkEnumerateInstanceExtensionProperties(nullptr, &instanceProperties.availableInstanceExtensionsCount, nullptr);
-	instanceProperties.pAvailableInstanceExtensions.resize(instanceProperties.availableInstanceExtensionsCount);
-	instanceProperties.ppAvailableInstanceExtensionsNames.resize(instanceProperties.availableInstanceExtensionsCount);
-	vkEnumerateInstanceExtensionProperties(nullptr, &instanceProperties.availableInstanceExtensionsCount, instanceProperties.pAvailableInstanceExtensions.data());
-	for (int i = 0, j = 0; i < instanceProperties.availableInstanceExtensionsCount; ++i)
-	{
-		if (vkIsExtensionSuitable(instanceProperties.pAvailableInstanceExtensions[i]))
-		{
-			instanceProperties.ppAvailableInstanceExtensionsNames[j++] = instanceProperties.pAvailableInstanceExtensions[i].extensionName;
-			++instanceProperties.selectedInstanceExtensionsCount;
-		}
-	}
-}
-
-bool Vulkan::vkIsExtensionSuitable(VkExtensionProperties sExtension)
-{
-	for (int i = 0; i < InstanceLayersExtensions::ppDesiredExtensions.size(); ++i)
-		if (!strcmp(InstanceLayersExtensions::ppDesiredExtensions[i], sExtension.extensionName))
-			return (true);
-	for (int i = 0; i < PhysicalDeviceLayersExtensions::ppDesiredExtensions.size(); ++i)
-		if (!strcmp(PhysicalDeviceLayersExtensions::ppDesiredExtensions[i], sExtension.extensionName))
-			return (true);
-	return (false);
-}
-
-void Vulkan::vkSetupInstanceCreateInfo()
-{
-	instanceProperties.sInstanceCreateInfo.sType					= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	instanceProperties.sInstanceCreateInfo.flags					= 0;
-	instanceProperties.sInstanceCreateInfo.pNext 					= nullptr;
-	instanceProperties.sInstanceCreateInfo.pApplicationInfo			= &instanceProperties.sAppCreateInfo;
-	instanceProperties.sInstanceCreateInfo.enabledLayerCount		= instanceProperties.selectedInstanceLayersCount;
-	instanceProperties.sInstanceCreateInfo.ppEnabledLayerNames		= instanceProperties.ppAvailableInstanceLayersNames.data();
-	instanceProperties.sInstanceCreateInfo.enabledExtensionCount	= instanceProperties.selectedInstanceExtensionsCount;
-	instanceProperties.sInstanceCreateInfo.ppEnabledExtensionNames	= instanceProperties.ppAvailableInstanceExtensionsNames.data();
-}
-
-void Vulkan::vkCreateInstanceObj()
-{
-	if ((error = vkCreateInstance(&instanceProperties.sInstanceCreateInfo, nullptr, &instanceProperties.instanceObject)) != VK_SUCCESS)
-	{
-		std::cout << "Error occured: " << error << std::endl;
-		throw std::runtime_error(nullptr);
-	}
-}
-
 void Vulkan::vkCreateSurface(GLFWwindow *pWindow)
 {
-	if ((error = glfwCreateWindowSurface(instanceProperties.instanceObject, pWindow, nullptr, &surfaceObj)))
+	if ((error = glfwCreateWindowSurface(instance(), pWindow, nullptr, &surfaceObj)))
 	{
 		std::cout << "Code of error: " << error << std::endl;
 		throw std::runtime_error("Failed to create window surface");
 	}
-}
-
-void Vulkan::vkChoosePhysicalDeviceObj()
-{
-	vkEnumeratePhysicalDevices(instanceProperties.instanceObject, &availablePhysicalDeviceCount, nullptr);
-	pAvailablePhysicalDevices = (VkPhysicalDevice *)malloc(sizeof(VkPhysicalDevice) * availablePhysicalDeviceCount);
-	vkEnumeratePhysicalDevices(instanceProperties.instanceObject, &availablePhysicalDeviceCount, pAvailablePhysicalDevices);
-	for (int i = 0; i < availablePhysicalDeviceCount; ++i)
-	{
-		if (vkIsDeviceSuitable(pAvailablePhysicalDevices[i]))
-		{
-			physicalDeviceObj = pAvailablePhysicalDevices[i];
-			break;
-		}
-	}
-	if (physicalDeviceObj == VK_NULL_HANDLE)
-		throw std::runtime_error("Failed suit GPU");
-}
-
-bool Vulkan::vkIsDeviceSuitable(VkPhysicalDevice physicalDevice)
-{
-	vkGetPhysicalDeviceFeatures		(physicalDevice, &sPhysicalDeviceFeatures);
-	vkGetPhysicalDeviceProperties	(physicalDevice, &sPhysicalDeviceProperties);
-	return (sPhysicalDeviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
 }
 
 void Vulkan::vkCheckSwapChainSupport()
@@ -256,59 +146,6 @@ void Vulkan::vkCheckSwapChainSupport()
 	vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDeviceObj, surfaceObj, &khrPresentModesCount , pKHRPresentModes);
 	if (!khrFormatsCount or !khrPresentModesCount)
 		throw std::runtime_error("Failed to setup swap chain extension");
-}
-
-void Vulkan::vkSetupPhysicalDeviceLayers()
-{
-	vkEnumerateDeviceLayerProperties(physicalDeviceObj, &availablePhysicalDeviceLayersCount, nullptr);
-	pAvailablePhysicalDeviceLayers = (VkLayerProperties *)malloc(sizeof(VkLayerProperties) * availablePhysicalDeviceLayersCount);
-	ppAvailablePhysicalDeviceLayersNames = (const char **)malloc(sizeof(const char *) * availablePhysicalDeviceLayersCount);
-	vkEnumerateDeviceLayerProperties(physicalDeviceObj, &availablePhysicalDeviceLayersCount, pAvailablePhysicalDeviceLayers);
-	for (int i = 0, j = 0; i < availablePhysicalDeviceLayersCount; ++i)
-	{
-		if (vkIsLayerSuitable(pAvailablePhysicalDeviceLayers[i]))
-		{
-			++selectedPhysicalDeviceLayersCount;
-			ppAvailablePhysicalDeviceLayersNames[j++] = pAvailablePhysicalDeviceLayers[i].layerName;
-		}
-	}
-}
-
-void Vulkan::vkSetupPhysicalDeviceExtensions()
-{
-	vkEnumerateDeviceExtensionProperties(physicalDeviceObj, nullptr, &availablePhysicalDeviceExtensionsCount, nullptr);
-	pAvailablePhysicalDeviceExtensions = (VkExtensionProperties *)malloc(sizeof(VkExtensionProperties) * availablePhysicalDeviceExtensionsCount);
-	ppAvailablePhysicalDeviceExtensionsNames = (const char **)malloc(sizeof(const char *) * availablePhysicalDeviceExtensionsCount);
-	vkEnumerateDeviceExtensionProperties(physicalDeviceObj, nullptr, &availablePhysicalDeviceExtensionsCount, pAvailablePhysicalDeviceExtensions);
-	for (int i = 0, j = 0; i < availablePhysicalDeviceExtensionsCount; ++i)
-	{
-		if (vkIsExtensionSuitable(pAvailablePhysicalDeviceExtensions[i]))
-		{
-			++selectedPhysicalDeviceExtensionsCount;
-			ppAvailablePhysicalDeviceExtensionsNames[j++] = pAvailablePhysicalDeviceExtensions[i].extensionName;
-			std::cout << pAvailablePhysicalDeviceExtensions[i].extensionName << "\n";
-		}
-	}
-}
-
-void Vulkan::vkQueryPhysicalDeviceQueue()
-{
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDeviceObj, 	&availablePhysicalDeviceQueuesCount, nullptr);
-	pAvailablePhysicalDeviceQueuesFamily = (VkQueueFamilyProperties *)malloc(sizeof(VkQueueFamilyProperties) * availablePhysicalDeviceQueuesCount);
-	vkGetPhysicalDeviceQueueFamilyProperties(physicalDeviceObj, &availablePhysicalDeviceQueuesCount, pAvailablePhysicalDeviceQueuesFamily);
-	for (int i = 0; i < availablePhysicalDeviceQueuesCount and (graphicQueueFamilyIndex < 0 or presentQueueFamilyIndex < 0 or graphicQueueFamilyIndex == presentQueueFamilyIndex); ++i)
-	{
-		vkGetPhysicalDeviceSurfaceSupportKHR(physicalDeviceObj, i, surfaceObj, &presentQueueFamilySupport);
-		if (pAvailablePhysicalDeviceQueuesFamily[i].queueCount > 0)
-		{
-			if ((pAvailablePhysicalDeviceQueuesFamily[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) and graphicQueueFamilyIndex < 0)
-				graphicQueueFamilyIndex = i;
-			if (presentQueueFamilySupport)
-				presentQueueFamilyIndex = i;
-		}
-	}
-	if (graphicQueueFamilyIndex < 0 or presentQueueFamilyIndex < 0)
-		throw std::runtime_error("Failed to find physical queue for gpu");
 }
 
 void Vulkan::vkSetupDeviceQueueCreateInfo(float queuePriority)
@@ -625,8 +462,8 @@ void Vulkan::vkCreateNewGraphicsPipeline()
 
 	VkGraphicsPipelineCreateInfo	pipeline = {};
 
-	vertexCode = this->vkReadFile("./shader_source/vert.spv");
-	fragmentCode = this->vkReadFile("./shader_source/frag.spv");
+	vertexCode = this->vkReadFile("../shader_source/vert.spv");
+	fragmentCode = this->vkReadFile("../shader_source/frag.spv");
 	vertexModule = this->vkCreateNewShaderModule(vertexCode);
 	fragmentModule = this->vkCreateNewShaderModule(fragmentCode);
 
@@ -942,5 +779,5 @@ void Vulkan::vkDrawFrame()
 
 void	Vulkan::fbCleanUp()
 {
-	;//vkDestroyInstance(instanceProperties.instanceObject, nullptr);
+	;
 }
