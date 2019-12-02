@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/14 13:59:07 by vrichese          #+#    #+#             */
-/*   Updated: 2019/12/01 18:50:11 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/02 17:44:08 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,60 +22,6 @@ class Vulkan
 {
 	public:
 		Instance	instance;
-		/*
-		** Window surface choosing and setup
-		*/
-		VkSurfaceKHR				surfaceObj					= VK_NULL_HANDLE;
-		VkSurfaceCapabilitiesKHR	capabilities				= {};
-		uint32_t					khrFormatsCount				= 0;
-		VkSurfaceFormatKHR			*pKHRFormats				= nullptr;
-		uint32_t					khrPresentModesCount		= 0;
-		VkPresentModeKHR			*pKHRPresentModes			= nullptr;
-		/*
-		** Physical Device finding and setup ----------------------------------------------
-		*/
-		VkPhysicalDevice			physicalDeviceObj							= VK_NULL_HANDLE;
-		u_int32_t					availablePhysicalDeviceLayersCount			= 0;
-		u_int32_t					selectedPhysicalDeviceLayersCount			= 0;
-		VkLayerProperties			*pAvailablePhysicalDeviceLayers				= nullptr;
-		const char					**ppAvailablePhysicalDeviceLayersNames		= nullptr;
-		u_int32_t					selectedPhysicalDeviceExtensionsCount		= 0;
-		u_int32_t					availablePhysicalDeviceExtensionsCount		= 0;
-		VkExtensionProperties		*pAvailablePhysicalDeviceExtensions			= nullptr;
-		const char					**ppAvailablePhysicalDeviceExtensionsNames	= nullptr;
-		VkPhysicalDevice			*pAvailablePhysicalDevices					= nullptr;
-		VkPhysicalDeviceFeatures	sPhysicalDeviceFeatures						= {};
-		VkPhysicalDeviceProperties	sPhysicalDeviceProperties					= {};
-		u_int32_t					availablePhysicalDeviceCount				= 0;
-		/*
-		** Finding and selecting queue families and particular queue we need --------------
-		*/
-		u_int32_t				availablePhysicalDeviceQueuesCount		= 0;
-		VkQueueFamilyProperties	*pAvailablePhysicalDeviceQueuesFamily 	= nullptr;
-		VkQueue					graphicQueueFamily						= VK_NULL_HANDLE;
-		VkDeviceQueueCreateInfo sDeviceGraphicQueueFamilyCreateInfo		= {};
-		int32_t					graphicQueueFamilyIndex					= -1;
-		VkQueue					presentQueueFamily						= VK_NULL_HANDLE;
-		VkDeviceQueueCreateInfo sDevicePresentQeueuFamilyCreateInfo		= {};
-		int32_t					presentQueueFamilyIndex					= -1;
-		VkBool32				presentQueueFamilySupport				= false;
-		uint32_t				deviceQueueFamilyCreateInfoCount		= 0;
-		VkDeviceQueueCreateInfo *psDeviceQueueFamilyCreateInfoList		= nullptr;
-		/*
-		** Create logical device and setup it --------------------------------------------
-		*/
-		VkDevice				deviceObj				= VK_NULL_HANDLE;
-		VkDeviceCreateInfo		sCreateDeviceInfo		= {};
-		/*
-		** Create swap chain and setup it
-		*/
-		VkSurfaceFormatKHR			sBestSwapChainFormat		= {};
-		VkPresentModeKHR			sBestSwapChainPresentMode	= {};
-		VkExtent2D					sBestSwapChainResolution	= {};
-		uint32_t					imageCount					= 0;
-		VkSwapchainCreateInfoKHR	sSwapChainCreateInfo		= {};
-		VkSwapchainKHR				swapchainObj				= VK_NULL_HANDLE;
-		VkImage						*pImageObjList				= nullptr;
 		/*
 		** Create Image view and setup it
 		*/
@@ -98,17 +44,8 @@ class Vulkan
 
 		int				error;
 
-		Vulkan(): error(false), presentQueueFamilyIndex(-1) {}
+		Vulkan(): error(false) {}
 		void run(GLFWwindow *pWindow);
-
-		void vkCreateSurface(GLFWwindow *pWindow);
-
-		void vkChoosePhysicalDeviceObj		();
-		void vkCheckSwapChainSupport		();
-		bool vkIsDeviceSuitable				(VkPhysicalDevice physicalDevice);
-		void vkSetupPhysicalDeviceExtensions();
-		void vkSetupPhysicalDeviceLayers	();
-		void vkQueryPhysicalDeviceQueue		();
 
 		void vkSetupDeviceQueueCreateInfo	(float queuePriority);
 		void vkSetupDeviceCreateInfo		();

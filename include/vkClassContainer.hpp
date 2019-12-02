@@ -6,12 +6,17 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/18 20:43:53 by vrichese          #+#    #+#             */
-/*   Updated: 2019/12/01 19:33:25 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/02 17:47:03 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef VK_CLASS_CONTAINER_HPP
 # define VK_CLASS_CONTAINER_HPP
+
+# define WIDTH	1920
+# define HEIGHT	1080
+
+class Surface;
 
 # include <fstream>
 # include <iostream>
@@ -26,10 +31,11 @@
 # include "/usr/local/include/vulkan/vulkan.h"
 # include "../include/glfw3.h"
 
-# include "fbClassInstance.hpp"
-# include "fbClassSurface.hpp"
 # include "fbClassPhysicalDevice.hpp"
+# include "fbClassSurface.hpp"
 # include "fbClassDevice.hpp"
+# include "fbClassSwapChain.hpp"
+# include "fbClassInstance.hpp"
 
 # include "vkClassVulkan.hpp"
 # include "vkClassWindow.hpp"

@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 13:35:59 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/01 20:23:11 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/02 18:09:41 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ std::vector<VkLayerProperties> Instance::getLayers()
 	{
 		vkEnumerateInstanceLayerProperties(&availableInstanceLayersCount, nullptr);
 		pAvailableInstanceLayers.resize(availableInstanceLayersCount);
+		ppSelectedLayers.resize(availableInstanceLayersCount);
 		vkEnumerateInstanceLayerProperties(&availableInstanceLayersCount, pAvailableInstanceLayers.data());
 		calledLayers = true;
 	}
@@ -42,42 +43,43 @@ std::vector<VkExtensionProperties> Instance::getExtensions()
 	{
 		vkEnumerateInstanceExtensionProperties(nullptr, &availableInstanceExtensionsCount, nullptr);
 		pAvailableInstanceExtensions.resize(availableInstanceExtensionsCount);
+		ppSelectedExtensions.resize(availableInstanceExtensionsCount);
 		vkEnumerateInstanceExtensionProperties(nullptr, &availableInstanceExtensionsCount, pAvailableInstanceExtensions.data());
 		calledExtensions = true;
 	}
 	return (pAvailableInstanceExtensions);
 }
 
-void Instance::setupLayers()
+void Instance::setupLayers(std::vector<const char *> &desiredLayers)
 {
-	if (!calledLayers)
-		getLayers();
+	getLayers();
 	for (int i = 0; i < availableInstanceLayersCount; ++i)
-		if (isLayerSuitable(pAvailableInstanceLayers[i]))
+		if (isLayerSuitable(pAvailableInstanceLayers[i], desiredLayers))
 			ppSelectedLayers[selectedInstanceLayersCount++] = pAvailableInstanceLayers[i].layerName;
+	ppSelectedLayers.resize(selectedInstanceLayersCount);
 }
 
-bool Instance::isLayerSuitable(VkLayerProperties sLayer)
+bool Instance::isLayerSuitable(VkLayerProperties sLayer, std::vector<const char *> &desiredLayers)
 {
-	for (int i = 0; i < ppSelectedLayers.size(); ++i)
-		if (!strcmp(ppSelectedLayers[i], sLayer.layerName))
+	for (int i = 0; i < desiredLayers.size(); ++i)
+		if (!strcmp(desiredLayers[i], sLayer.layerName))
 			return (true);
 	return (false);
 }
 
-void Instance::setupExtensions()
+void Instance::setupExtensions(std::vector<const char *> &desiredExtensions)
 {
-	if (!calledExtensions)
-		getExtensions();
+	getExtensions();
 	for (int i = 0; i < availableInstanceExtensionsCount; ++i)
-		if (isExtensionSuitable(pAvailableInstanceExtensions[i]))
+		if (isExtensionSuitable(pAvailableInstanceExtensions[i], desiredExtensions))
 			ppSelectedExtensions[selectedInstanceExtensionsCount++] = pAvailableInstanceExtensions[i].extensionName;
+	ppSelectedExtensions.resize(selectedInstanceExtensionsCount);
 }
 
-bool Instance::isExtensionSuitable(VkExtensionProperties sExtension)
+bool Instance::isExtensionSuitable(VkExtensionProperties sExtension, std::vector<const char *> &desiredExtensions)
 {
-	for (int i = 0; i < ppSelectedExtensions.size(); ++i)
-		if (!strcmp(ppSelectedExtensions[i], sExtension.extensionName))
+	for (int i = 0; i < desiredExtensions.size(); ++i)
+		if (!strcmp(desiredExtensions[i], sExtension.extensionName))
 			return (true);
 	return (false);
 }
@@ -94,23 +96,13 @@ void Instance::setupCreateInfo()
 	sSelfCreateInfo.pNext 					= nullptr;
 }
 
-void Instance::createObj()
+void Instance::create()
 {
 	if ((codeOfError = vkCreateInstance(&sSelfCreateInfo, nullptr, &self)) != VK_SUCCESS)
 		error("Failed to create Instance(Vulkan object)");
 }
 
-void Instance::init(const char *pAppName, const char *pEnginName,
-				uint32_t appVersion, uint32_t engineVersion)
-{
-	setupAppInfo(pAppName, pEnginName, appVersion, engineVersion);
-	setupLayers();
-	setupExtensions();
-	setupCreateInfo();
-	createObj();
-}
-
-void Instance::findDevice(int deviceType, std::vector<const char *> layers, std::vector<const char *> extensions)
+void Instance::findDevice(int deviceType)
 {
 	vkEnumeratePhysicalDevices(self, &availablePhysicalDeviceCount, nullptr);
 	pAvailablePhysicalDevices.resize(availablePhysicalDeviceCount);
@@ -123,14 +115,18 @@ void Instance::findDevice(int deviceType, std::vector<const char *> layers, std:
 	}
 	if (physicalDevice.sProperties.deviceType != deviceType)
 		throw std::runtime_error("Failed suit GPU");
-	else
-		physicalDevice.init(layers, extensions);
 }
 
 bool Instance::isDeviceSuitable(int deviceType)
 {
 	physicalDevice.getInfo();
 	return (physicalDevice.sProperties.deviceType == deviceType);
+}
+
+void Instance::createSurface(GLFWwindow *pWindow)
+{
+	if ((codeOfError = glfwCreateWindowSurface(self, pWindow, nullptr, &surface.self)) != VK_SUCCESS)
+		error("Failed to craete window surface");
 }
 
 void Instance::error(const char *error_message)

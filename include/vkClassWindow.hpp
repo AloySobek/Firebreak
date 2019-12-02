@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/18 20:50:43 by vrichese          #+#    #+#             */
-/*   Updated: 2019/12/01 18:54:31 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/02 17:22:31 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ class Window
 		int	mHeight;
 		GLFWwindow *mpWindow;
 
-		Window() : mWidth(1920), mHeight(1080)
+		Window() : mWidth(WIDTH), mHeight(HEIGHT)
 		{
 			glfwInit();
 			glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);

@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 19:34:16 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/01 20:22:26 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/02 18:46:42 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,21 +27,38 @@ class PhysicalDevice
 		u_int32_t	selectedLayersCount			= 0;
 		u_int32_t	selectedExtensionsCount		= 0;
 		u_int32_t	availableExtensionsCount	= 0;
+		u_int32_t	availableQueuesFamilies		= 0;
+		int32_t		presentQueueFamilyIndex		= -1;
+		int32_t		graphicQueueFamilyIndex		= -1;
+
+		void	setupLayers		(std::vector<const char *> &desiredLayers);
+		void	setupExtensions	(std::vector<const char *> &desiredExtensions);
+
+		std::vector<VkLayerProperties>			getLayers();
+		std::vector<VkExtensionProperties>		getExtensions();
+		std::vector<VkQueueFamilyProperties>	getQueueFamilies();
+
+		void	checkSurfaceSupportAndSetupPresentQueue(Surface surface);
+
+		void	setupQueue(int type);
 
 		friend class Instance;
-
-		void init(std::vector<const char *> layers,
-				std::vector<const char *> extensions);
+		friend class Device;
 
 	private:
-		std::vector<VkExtensionProperties>	pAvailableExtensions;
-		std::vector<VkLayerProperties>		pAvailableLayers;
-		std::vector<const char *>			ppSelectedLayers;
-		std::vector<const char *>			ppSelectedExtensions;
+		std::vector<VkQueueFamilyProperties> 	pAvailableQueuesFamilies;
+		std::vector<VkExtensionProperties>		pAvailableExtensions;
+		std::vector<VkLayerProperties>			pAvailableLayers;
+		std::vector<const char *>				ppSelectedLayers;
+		std::vector<const char *>				ppSelectedExtensions;
+
+		bool	calledLayers			= false;
+		bool	calledExtensions		= false;
+		bool	calledQeueueFamilies 	= false;
 
 		void getInfo(void);
-		void setupLayers();
-		void setupExtensions();
+		bool isLayerSuitable(VkLayerProperties sLayer, std::vector<const char *> &desiredLayers);
+		bool isExtensionSuitable(VkExtensionProperties sExtensions, std::vector<const char *> &desiredExtensions);
 		void queryQueue();
 };
 

@@ -12,5 +12,5 @@ SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}
 file(GLOB SOURCES "source/*.cpp")
 add_executable(firebreak ${SOURCES})
 
-target_link_libraries(firebreak PRIVATE /usr/local/lib/libvulkan.1.1.121.dylib)
-target_link_libraries(firebreak PRIVATE /Users/vrichese/Workspace/Rus42/MyProjects/WanderingStar/Firebreak/libs/libglfw.3.3.dylib)
+target_link_libraries(firebreak /usr/local/lib/libvulkan.1.1.121.dylib)
+target_link_libraries(firebreak /Users/vrichese/Workspace/Rus42/MyProjects/WanderingStar/Firebreak/libs/libglfw.3.3.dylib)
