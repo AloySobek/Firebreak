@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/02 15:45:17 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/02 18:48:12 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/03 20:59:48 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,10 +30,9 @@ class	SwapChain
 		std::vector<VkImage>		images;
 
 		Device			device;
-		Surface			surface;
 
-		void	setupSwapChain();
-		void	setupSwapChainCreateInfo();
+		void	setupSwapChain(Surface surface);
+		void	setupSwapChainCreateInfo(Surface surface);
 		void	create();
 
 		~SwapChain() { }
