@@ -6,14 +6,14 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/18 20:50:43 by vrichese          #+#    #+#             */
-/*   Updated: 2019/12/03 14:31:09 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/04 20:23:21 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef VK_CLASS_WINDOW_HPP
 # define VK_CLASS_WINDOW_HPP
 
-# include "vkClassContainer.hpp"
+# include "firebreak.hpp"
 
 class Window
 {

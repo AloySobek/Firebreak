@@ -6,123 +6,22 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/14 13:59:07 by vrichese          #+#    #+#             */
-/*   Updated: 2019/12/03 20:59:49 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/04 20:42:54 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef VK_CLASS_VULKAN_HPP
 # define VK_CLASS_VULKAN_HPP
 
-// class Vulkan
-// {
-// 	public:
-// 		Instance	instance;
-// 		Device		device;
-// 		Surface		surface;
-// 		/*
-// 		** Create Image view and setup it
-// 		*/
-// 		VkImageView	*pImageViewList	= nullptr;
-
-// 		VkRenderPass		renderPass = VK_NULL_HANDLE;
-
-// 		VkPipelineLayout	layoutObj = VK_NULL_HANDLE;
-
-// 		VkPipeline			pipelineObj = VK_NULL_HANDLE;
-
-// 		std::vector<VkFramebuffer> swapChainFrameBuffers;
-
-// 		VkCommandPool		commandPool;
-
-// 		std::vector<VkCommandBuffer> commandBuffer;
-
-// 		VkSemaphore		imageAvailableSemaphore;
-// 		VkSemaphore		renderFinishedSemaphore;
-
-// 		int				error;
-
-// 		Vulkan(): error(false) {}
-// 		void run(GLFWwindow *pWindow);
-
-// 		void vkSetupDeviceQueueCreateInfo	(float queuePriority);
-// 		void vkSetupDeviceCreateInfo		();
-// 		void vkCreateNewDevice				();
-
-// 		void vkSetupSwapChain			();
-// 		void vkSetupSwapChainCreateInfo	();
-// 		void vkCreateSwapChain			();
-
-// 		VkImageViewCreateInfo 	vkSetupImageViewCreateInfo	(VkImage image);
-// 		void 					vkCreateNewImageView			();
-
-// 		void	vkCreateNewRenderPass();
-
-// 		void 				vkCreateNewGraphicsPipeline();
-// 		std::vector<char> 	vkReadFile				(const char *filename);
-// 		VkShaderModule		vkCreateNewShaderModule	(const std::vector<char> &code);
-
-// 		void 				vkCreateNewFrameBuffer();
-
-// 		void				vkCreateNewCommandPool();
-
-// 		void				vkCreateNewCommandBuffers();
-
-// 		void 				vkCreateNewSemaphore();
-
-// 		void				vkDrawFrame();
-
-// 		void				fbCleanUp();
-// };
-
-// #endif
+# include "firebreak.hpp"
 
 class Vulkan
 {
 	public:
-		Instance instance;
+		Device		device;
 
-		Surface surface;
+		Surface		surface;
 
-		Device device;
-
-		/*
-		** Physical Device finding and setup ----------------------------------------------
-		*/
-		VkPhysicalDevice			physicalDeviceObj							= VK_NULL_HANDLE;
-		u_int32_t					availablePhysicalDeviceLayersCount			= 0;
-		u_int32_t					selectedPhysicalDeviceLayersCount			= 0;
-		VkLayerProperties			*pAvailablePhysicalDeviceLayers				= nullptr;
-		const char					**ppAvailablePhysicalDeviceLayersNames		= nullptr;
-		u_int32_t					selectedPhysicalDeviceExtensionsCount		= 0;
-		u_int32_t					availablePhysicalDeviceExtensionsCount		= 0;
-		VkExtensionProperties		*pAvailablePhysicalDeviceExtensions			= nullptr;
-		const char					**ppAvailablePhysicalDeviceExtensionsNames	= nullptr;
-		VkPhysicalDevice			*pAvailablePhysicalDevices					= nullptr;
-		VkPhysicalDeviceFeatures	sPhysicalDeviceFeatures						= {};
-		VkPhysicalDeviceProperties	sPhysicalDeviceProperties					= {};
-		u_int32_t					availablePhysicalDeviceCount				= 0;
-		/*
-		** Finding and selecting queue families and particular queue we need --------------
-		*/
-		u_int32_t				availablePhysicalDeviceQueuesCount		= 0;
-		VkQueueFamilyProperties	*pAvailablePhysicalDeviceQueuesFamily 	= nullptr;
-		VkQueue					graphicQueueFamily						= VK_NULL_HANDLE;
-		VkDeviceQueueCreateInfo sDeviceGraphicQueueFamilyCreateInfo		= {};
-		int32_t					graphicQueueFamilyIndex					= -1;
-		VkQueue					presentQueueFamily						= VK_NULL_HANDLE;
-		VkDeviceQueueCreateInfo sDevicePresentQeueuFamilyCreateInfo		= {};
-		int32_t					presentQueueFamilyIndex					= -1;
-		VkBool32				presentQueueFamilySupport				= false;
-		uint32_t				deviceQueueFamilyCreateInfoCount		= 0;
-		VkDeviceQueueCreateInfo *psDeviceQueueFamilyCreateInfoList		= nullptr;
-		/*
-		** Create logical device and setup it --------------------------------------------
-		*/
-		VkDevice				deviceObj				= VK_NULL_HANDLE;
-		VkDeviceCreateInfo		sCreateDeviceInfo		= {};
-		/*
-		** Create swap chain and setup it
-		*/
 		VkSurfaceFormatKHR			sBestSwapChainFormat		= {};
 		VkPresentModeKHR			sBestSwapChainPresentMode	= {};
 		VkExtent2D					sBestSwapChainResolution	= {};
@@ -133,6 +32,7 @@ class Vulkan
 		/*
 		** Create Image view and setup it
 		*/
+
 		VkImageView	*pImageViewList	= nullptr;
 
 		VkRenderPass		renderPass = VK_NULL_HANDLE;
@@ -152,29 +52,7 @@ class Vulkan
 
 		int				error;
 
-		Vulkan(): error(false), presentQueueFamilyIndex(-1) {}
 		void run(GLFWwindow *pWindow);
-
-		void vkSetupAppInfo				();
-		void vkSetupInstanceLayers		();
-		bool vkIsLayerSuitable			(VkLayerProperties sLayer);
-		void vkSetupInstanceExtensions	();
-		bool vkIsExtensionSuitable		(VkExtensionProperties sExtension);
-		void vkSetupInstanceCreateInfo	();
-		void vkCreateInstanceObj		();
-
-		void vkCreateSurface(GLFWwindow *pWindow);
-
-		void vkChoosePhysicalDeviceObj		();
-		void vkCheckSwapChainSupport		();
-		bool vkIsDeviceSuitable				(VkPhysicalDevice physicalDevice);
-		void vkSetupPhysicalDeviceExtensions();
-		void vkSetupPhysicalDeviceLayers	();
-		void vkQueryPhysicalDeviceQueue		();
-
-		void vkSetupDeviceQueueCreateInfo	(float queuePriority);
-		void vkSetupDeviceCreateInfo		();
-		void vkCreateNewDevice				();
 
 		void vkSetupSwapChain			();
 		void vkSetupSwapChainCreateInfo	();
@@ -183,7 +61,7 @@ class Vulkan
 		VkImageViewCreateInfo 	vkSetupImageViewCreateInfo	(VkImage image);
 		void 					vkCreateNewImageView			();
 
-		void	vkCreateNewRenderPass();
+		void					vkCreateNewRenderPass();
 
 		void 				vkCreateNewGraphicsPipeline();
 		std::vector<char> 	vkReadFile				(const char *filename);
@@ -198,8 +76,6 @@ class Vulkan
 		void 				vkCreateNewSemaphore();
 
 		void				vkDrawFrame();
-
-		void				fbCleanUp();
 };
 
 #endif

@@ -6,18 +6,31 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 19:29:48 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/03 20:59:39 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/04 20:52:48 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "vkClassContainer.hpp"
+#include "firebreak.hpp"
 
-Device::Device()
+Device::Device(const void *pNext)
 {
-	sCreateInfo.sType					= VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	sCreateInfo.pEnabledFeatures		= &sFeatures;
-	sCreateInfo.flags					= VK_NULL_HANDLE;
-	sCreateInfo.pNext					= nullptr;
+	init();
+	sCreateInfo.pNext = pNext;
+}
+
+Device::Device(VkDeviceCreateFlags flags, const void *pNext)
+{
+	init();
+	sCreateInfo.flags = flags;
+	sCreateInfo.pNext = pNext;
+}
+
+void Device::init()
+{
+	sCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	sCreateInfo.pEnabledFeatures = &sFeatures;
+	memset(pIndexArray, -1, VK_QUEUE_PROTECTED_BIT * sizeof(uint32_t));
+	memset(pQueues, 0, VK_QUEUE_PROTECTED_BIT);
 }
 
 void Device::setupFlags(VkInstanceCreateFlags flags)
@@ -30,29 +43,54 @@ void Device::setupNext(const void *pNext)
 	sCreateInfo.pNext = pNext;
 }
 
-void Device::retrievePhysicalDevices(VkInstance instance)
+void Device::setupLayers(std::vector<const char *> &desiredLayers)
+{
+	getLayers();
+	for (int i = 0; i < availableLayersCount; ++i)
+		if (isLayerSuitable(pAvailableLayers[i], desiredLayers))
+			ppEnabledLayerNames[enabledLayerCount++] = pAvailableLayers[i].layerName;
+}
+
+void Device::setupExtensions(std::vector<const char *> &desiredExtensions)
+{
+	getExtensions();
+	for (int i = 0; i < availableExtensionsCount; ++i)
+		if (isExtensionSuitable(pAvailableExtensions[i], desiredExtensions))
+			ppEnabledExtensionNames[enabledExtensionCount++] = pAvailableExtensions[i].extensionName;
+}
+
+VkDevice	Device::getSelf()
+{
+	assert(self);
+	return (self);
+}
+
+VkPhysicalDevice	Device::getPhysicalSelf()
+{
+	assert(physicalSelf);
+	return (physicalSelf);
+}
+
+VkPhysicalDevice	*Device::getPhysicalDevices(Instance instance)
 {
 	if (!retrieveDevices)
 	{
-		vkEnumeratePhysicalDevices(instance, &availablePhysicalDeviceCount, nullptr);
+		vkEnumeratePhysicalDevices(instance(), &availablePhysicalDeviceCount, nullptr);
 		pAvailablePhysicalDevices = new VkPhysicalDevice[availablePhysicalDeviceCount];
-		vkEnumeratePhysicalDevices(instance, &availablePhysicalDeviceCount, pAvailablePhysicalDevices);
+		vkEnumeratePhysicalDevices(instance(), &availablePhysicalDeviceCount, pAvailablePhysicalDevices);
 		retrieveDevices = true;
 	}
+	return (pAvailablePhysicalDevices);
 }
 
-void Device::attachPhysicalDevice(int deviceType)
+VkPhysicalDeviceFeatures	*Device::getFeatures()
 {
-	for (int i = 0; i < availablePhysicalDeviceCount && !physicalSelf; ++i)
-		if (isPhysicalDeviceSuitable(pAvailablePhysicalDevices[i], deviceType))
-			std::cout << sProperties.deviceName << std::endl;
+	return (&sFeatures);
 }
 
-bool Device::isPhysicalDeviceSuitable(VkPhysicalDevice testingDevice, int deviceType)
+VkPhysicalDeviceProperties	*Device::getProperties()
 {
-	vkGetPhysicalDeviceFeatures(testingDevice, &sFeatures);
-	vkGetPhysicalDeviceProperties(testingDevice, &sProperties);
-	return (sProperties.deviceType == deviceType);
+	return (&sProperties);
 }
 
 VkLayerProperties	*Device::getLayers()
@@ -68,22 +106,6 @@ VkLayerProperties	*Device::getLayers()
 	return (pAvailableLayers);
 }
 
-void Device::setupLayers(std::vector<const char *> &desiredLayers)
-{
-	getLayers();
-	for (int i = 0; i < availableLayersCount; ++i)
-		if (isLayerSuitable(pAvailableLayers[i], desiredLayers))
-			ppEnabledLayerNames[enabledLayerCount++] = pAvailableLayers[i].layerName;
-}
-
-bool Device::isLayerSuitable(VkLayerProperties sLayer, std::vector<const char *> &desiredLayers)
-{
-	for (int i = 0; i < desiredLayers.size(); ++i)
-		if (!strcmp(desiredLayers[i], sLayer.layerName))
-			return (true);
-	return (false);
-}
-
 VkExtensionProperties	*Device::getExtensions()
 {
 	if (!calledExtensions)
@@ -95,32 +117,6 @@ VkExtensionProperties	*Device::getExtensions()
 		calledExtensions = true;
 	}
 	return (pAvailableExtensions);
-}
-
-void Device::setupExtensions(std::vector<const char *> &desiredExtensions)
-{
-	getExtensions();
-	for (int i = 0; i < availableExtensionsCount; ++i)
-		if (isExtensionSuitable(pAvailableExtensions[i], desiredExtensions))
-			ppEnabledExtensionNames[enabledExtensionCount++] = pAvailableExtensions[i].extensionName;
-}
-
-bool Device::isExtensionSuitable(VkExtensionProperties sExtension, std::vector<const char *> &desiredExtensions)
-{
-	for (int i = 0; i < desiredExtensions.size(); ++i)
-		if (!strcmp(desiredExtensions[i], sExtension.extensionName))
-			return (true);
-	return (false);
-}
-
-VkDevice Device::getSelf()
-{
-	return (self);
-}
-
-VkDevice Device::operator()()
-{
-	return (self);
 }
 
 VkQueueFamilyProperties	*Device::getQueueFamilies()
@@ -135,66 +131,121 @@ VkQueueFamilyProperties	*Device::getQueueFamilies()
 	return (pAvailableQueuesFamilies);
 }
 
-void Device::checkCompatibleWithSurface(Surface surface)
+void Device::attachPhysicalDevice(int deviceType)
+{
+	for (int i = 0; i < availablePhysicalDeviceCount && !physicalSelf; ++i)
+		if (isPhysicalDeviceSuitable(pAvailablePhysicalDevices[i], deviceType))
+			physicalSelf = pAvailablePhysicalDevices[i];
+}
+
+void Device::attachPhysicalDevice(Instance instance, int deviceType)
+{
+	getPhysicalDevices(instance);
+	attachPhysicalDevice(deviceType);
+}
+
+bool Device::checkCompatibleWithSurface(Surface surface)
 {
 	VkBool32 presentQueueFamilySupport = false;
 
 	getQueueFamilies();
-	for (int i = 0; i < availableQueuesFamiliesCount && presentQueueFamilyIndex < 0; ++i)
+	for (int i = 0; i < availableQueuesFamiliesCount; ++i)
 	{
 		vkGetPhysicalDeviceSurfaceSupportKHR(physicalSelf, i, surface.self, &presentQueueFamilySupport);
 		if (presentQueueFamilySupport)
-			presentQueueFamilyIndex = i;
+		{
+			pIndexArray[VK_QUEUE_PRESENT_BIT] = i;
+			break;
+		}
 	}
-	if (presentQueueFamilyIndex < 0)
-		throw std::runtime_error("Device not compatible with surface");
-	setupQueueFamilyCreateInfo(1.0f, 1, presentQueueFamilyIndex);
+	if (!presentQueueFamilySupport)
+		return (false);
+	return (true);
 }
 
-void Device::setupQueue(int type)
+void Device::setupQueue(int type, float priority, int count)
 {
 	getQueueFamilies();
 	for (int i = 0; i < availableQueuesFamiliesCount; ++i)
-		if (pAvailableQueuesFamilies[i].queueCount > 0)
-			if ((pAvailableQueuesFamilies[i].queueFlags & type) && type == VK_QUEUE_GRAPHICS_BIT)
-			{
-				graphicQueueFamilyIndex = i;
-				if (i != presentQueueFamilyIndex)
-					break;
-			}
-	if (graphicQueueFamilyIndex < 0)
-		throw std::runtime_error("Failed to find physical queue for gpu");
-	setupQueueFamilyCreateInfo(1.0f, 1, graphicQueueFamilyIndex);
+		if (isQueueFamilySuitable(pAvailableQueuesFamilies[i], type, count) || type == VK_QUEUE_PRESENT_BIT)
+		{
+			pQueueFamiliesCreateInfo[queueFamiliesCreateInfoCount].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+			pQueueFamiliesCreateInfo[queueFamiliesCreateInfoCount].queueCount = count;
+			pQueueFamiliesCreateInfo[queueFamiliesCreateInfoCount].pQueuePriorities = &priority;
+			pQueueFamiliesCreateInfo[queueFamiliesCreateInfoCount].queueFamilyIndex = i;
+			pQueueFamiliesCreateInfo[queueFamiliesCreateInfoCount].pNext = nullptr;
+			pQueueFamiliesCreateInfo[queueFamiliesCreateInfoCount].flags = 0;
+			if (type != VK_QUEUE_PRESENT_BIT)
+				pIndexArray[type] = i;
+			++queueFamiliesCreateInfoCount;
+			break;
+		}
+	if (pIndexArray[type] < 0)
+		throw std::runtime_error("Failed to setup queue");
 }
 
-void Device::setupQueueFamilyCreateInfo(float queuePriority, int queueCount, int queueIndex)
+uint32_t		*Device::requireIndexArray()
 {
-	pQueueFamilies[queueFamilyCreateInfoCount].sType			= VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-	pQueueFamilies[queueFamilyCreateInfoCount].queueCount		= queueCount;
-	pQueueFamilies[queueFamilyCreateInfoCount].queueFamilyIndex	= queueIndex;
-	pQueueFamilies[queueFamilyCreateInfoCount].pQueuePriorities	= &queuePriority;
-	pQueueFamilies[queueFamilyCreateInfoCount].pNext			= nullptr;
-	pQueueFamilies[queueFamilyCreateInfoCount++].flags			= 0;
+	uint32_t	*new_array;
+	uint32_t	size = 0;
+
+	new_array = new uint32_t[VK_QUEUE_PROTECTED_BIT];
+	for (int i = 0; i < VK_QUEUE_PROTECTED_BIT; ++i)
+		if (pIndexArray[i] >= 0)
+			new_array[size++] = pIndexArray[i];
+	new_array[VK_QUEUE_PROTECTED_BIT - 1] = size;
+	return (0);
 }
 
-void Device::create()
+VkDevice Device::operator()()
 {
-	sCreateInfo.enabledLayerCount		= enabledLayerCount;
-	sCreateInfo.ppEnabledLayerNames		= ppEnabledLayerNames;
-	sCreateInfo.enabledExtensionCount	= enabledExtensionCount;
-	sCreateInfo.ppEnabledExtensionNames	= ppEnabledExtensionNames;
-	sCreateInfo.pQueueCreateInfos		= pQueueFamilies;
-	sCreateInfo.queueCreateInfoCount	= queueFamilyCreateInfoCount;
-
-	if ((codeOfError = vkCreateDevice(physicalSelf, &sCreateInfo, nullptr, &self)) != VK_SUCCESS)
+	if (!self)
 	{
-		std::cout << "Code of error: " << codeOfError << std::endl;
-		throw std::runtime_error("Failed to create logical device");
+		sCreateInfo.enabledLayerCount		= enabledLayerCount;
+		sCreateInfo.ppEnabledLayerNames		= ppEnabledLayerNames;
+		sCreateInfo.enabledExtensionCount	= enabledExtensionCount;
+		sCreateInfo.ppEnabledExtensionNames	= ppEnabledExtensionNames;
+		sCreateInfo.pQueueCreateInfos		= pQueueFamiliesCreateInfo;
+		sCreateInfo.queueCreateInfoCount	= queueFamiliesCreateInfoCount;
+
+		if ((codeOfError = vkCreateDevice(physicalSelf, &sCreateInfo, nullptr, &self)) != VK_SUCCESS)
+		{
+			std::cout << "Code of error: " << codeOfError << std::endl;
+			throw std::runtime_error("Failed to create logical device");
+		}
+		for (int i = 0; i < VK_QUEUE_PROTECTED_BIT; ++i)
+			if (pIndexArray[i] >= 0)
+				vkGetDeviceQueue(self, pIndexArray[i], 0, &pQueues[i]);
 	}
+	return (self);
 }
 
-void Device::retrieveAllQueus()
+bool Device::isPhysicalDeviceSuitable(VkPhysicalDevice testingDevice, uint32_t deviceType)
 {
-	vkGetDeviceQueue(self, graphicQueueFamilyIndex, 0, &graphicQueueFamily);
-	vkGetDeviceQueue(self, presentQueueFamilyIndex, 0, &presentQueueFamily);
+	vkGetPhysicalDeviceFeatures(testingDevice, &sFeatures);
+	vkGetPhysicalDeviceProperties(testingDevice, &sProperties);
+	return (sProperties.deviceType == deviceType);
+}
+
+bool Device::isLayerSuitable(VkLayerProperties sLayer, std::vector<const char *> &desiredLayers)
+{
+	for (int i = 0; i < desiredLayers.size(); ++i)
+		if (!strcmp(desiredLayers[i], sLayer.layerName))
+			return (true);
+	return (false);
+}
+
+bool Device::isExtensionSuitable(VkExtensionProperties sExtension, std::vector<const char *> &desiredExtensions)
+{
+	for (int i = 0; i < desiredExtensions.size(); ++i)
+		if (!strcmp(desiredExtensions[i], sExtension.extensionName))
+			return (true);
+	return (false);
+}
+
+bool Device::isQueueFamilySuitable(VkQueueFamilyProperties queueProperties, uint32_t type, uint32_t count)
+{
+	if ((queueProperties.queueFlags & type) && queueProperties.queueCount >= count)
+		return (true);
+	return (false);
 }

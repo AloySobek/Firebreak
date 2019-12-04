@@ -6,19 +6,39 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 13:35:59 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/03 20:59:38 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/04 19:30:52 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "vkClassContainer.hpp"
+#include "firebreak.hpp"
 
-Instance::Instance(const char *pAppName, const char *pEngineName, uint32_t appVersion, uint32_t engineVersion)
+Instance::Instance(const void *pNext)
 {
-	setupAppInfo(pAppName, pEngineName, appVersion, engineVersion);
-	sCreateInfo.sType			 = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	sCreateInfo.flags			 = VK_NULL_HANDLE;
-	sCreateInfo.pNext			 = nullptr;
-	sCreateInfo.pApplicationInfo = &sApplicationInfo;
+	init();
+	sCreateInfo.pNext = pNext;
+}
+
+Instance::Instance(VkInstanceCreateFlags flags, const void *pNext)
+{
+	init();
+	sCreateInfo.flags = flags;
+	sCreateInfo.pNext = pNext;
+}
+
+void Instance::init()
+{
+	sCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+	sCreateInfo.pApplicationInfo = nullptr;
+}
+
+void	Instance::setupAppInfo(const char *pAppName, const char *pEngineName, uint32_t appVersion, uint32_t engineVersion)
+{
+	sApplicationInfo.sType				= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+	sApplicationInfo.pNext				= nullptr;
+	sApplicationInfo.pApplicationName	= pAppName;
+	sApplicationInfo.pEngineName		= pEngineName;
+	sApplicationInfo.engineVersion		= engineVersion;
+	sApplicationInfo.apiVersion			= appVersion;
 }
 
 void	Instance::setupFlags(VkInstanceCreateFlags flags)
@@ -31,14 +51,41 @@ void	Instance::setupNext(const void *pNext)
 	sCreateInfo.pNext = pNext;
 }
 
-void	Instance::setupAppInfo(const char *pAppName, const char *pEngineName, uint32_t appVersion, uint32_t engineVersion)
+void Instance::setupLayers(std::vector<const char *> &desiredLayers)
 {
-	sApplicationInfo.sType				= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-	sApplicationInfo.pNext				= nullptr;
-	sApplicationInfo.pApplicationName	= pAppName;
-	sApplicationInfo.pEngineName		= pEngineName;
-	sApplicationInfo.engineVersion		= engineVersion;
-	sApplicationInfo.apiVersion			= appVersion;
+	getLayers();
+	for (int i = 0; i < availableLayersCount; ++i)
+		if (isLayerSuitable(pAvailableLayers[i], desiredLayers))
+			ppEnabledLayerNames[enabledLayerCount++] = pAvailableLayers[i].layerName;
+}
+
+void Instance::setupExtensions(std::vector<const char *> &desiredExtensions)
+{
+	getExtensions();
+	for (int i = 0; i < availableExtensionsCount; ++i)
+		if (isExtensionSuitable(pAvailableExtensions[i], desiredExtensions))
+			ppEnabledExtensionNames[enabledExtensionCount++] = pAvailableExtensions[i].extensionName;
+}
+
+VkInstance Instance::getSelf(void)
+{
+	assert(self);
+	return (self);
+}
+
+VkInstanceCreateFlags	Instance::getFlags()
+{
+	return (sCreateInfo.flags);
+}
+
+const void	*Instance::getNext()
+{
+	return (sCreateInfo.pNext);
+}
+
+const VkApplicationInfo	*Instance::getAppInfo()
+{
+	return (sCreateInfo.pApplicationInfo);
 }
 
 VkLayerProperties	*Instance::getLayers()
@@ -54,22 +101,6 @@ VkLayerProperties	*Instance::getLayers()
 	return (pAvailableLayers);
 }
 
-void Instance::setupLayers(std::vector<const char *> &desiredLayers)
-{
-	getLayers();
-	for (int i = 0; i < availableLayersCount; ++i)
-		if (isLayerSuitable(pAvailableLayers[i], desiredLayers))
-			ppEnabledLayerNames[enabledLayerCount++] = pAvailableLayers[i].layerName;
-}
-
-bool Instance::isLayerSuitable(VkLayerProperties sLayer, std::vector<const char *> &desiredLayers)
-{
-	for (int i = 0; i < desiredLayers.size(); ++i)
-		if (!strcmp(desiredLayers[i], sLayer.layerName))
-			return (true);
-	return (false);
-}
-
 VkExtensionProperties	*Instance::getExtensions()
 {
 	if (!calledExtensions)
@@ -83,12 +114,39 @@ VkExtensionProperties	*Instance::getExtensions()
 	return (pAvailableExtensions);
 }
 
-void Instance::setupExtensions(std::vector<const char *> &desiredExtensions)
+uint32_t	Instance::getLayersAmount()
 {
-	getExtensions();
-	for (int i = 0; i < availableExtensionsCount; ++i)
-		if (isExtensionSuitable(pAvailableExtensions[i], desiredExtensions))
-			ppEnabledExtensionNames[enabledExtensionCount++] = pAvailableExtensions[i].extensionName;
+	return (availableLayersCount);
+}
+
+uint32_t	Instance::getExtensionsAmount()
+{
+	return (availableExtensionsCount);
+}
+
+VkInstance Instance::operator()(void)
+{
+	if (!self)
+	{
+		sCreateInfo.enabledLayerCount		= enabledLayerCount;
+		sCreateInfo.ppEnabledLayerNames		= ppEnabledLayerNames;
+		sCreateInfo.enabledExtensionCount	= enabledExtensionCount;
+		sCreateInfo.ppEnabledExtensionNames	= ppEnabledExtensionNames;
+		if ((codeOfError = vkCreateInstance(&sCreateInfo, nullptr, &self)) != VK_SUCCESS)
+		{
+			std::cout << "Code of error: " << codeOfError << std::endl;
+			throw std::runtime_error("Failed to create instance");
+		}
+	}
+	return (self);
+}
+
+bool Instance::isLayerSuitable(VkLayerProperties sLayer, std::vector<const char *> &desiredLayers)
+{
+	for (int i = 0; i < desiredLayers.size(); ++i)
+		if (!strcmp(desiredLayers[i], sLayer.layerName))
+			return (true);
+	return (false);
 }
 
 bool Instance::isExtensionSuitable(VkExtensionProperties sExtension, std::vector<const char *> &desiredExtensions)
@@ -97,31 +155,4 @@ bool Instance::isExtensionSuitable(VkExtensionProperties sExtension, std::vector
 		if (!strcmp(desiredExtensions[i], sExtension.extensionName))
 			return (true);
 	return (false);
-}
-
-VkInstance Instance::getSelf(void)
-{
-	assert(self);
-	return (self);
-}
-
-VkInstance Instance::operator()(void)
-{
-	assert(self);
-	return (self);
-}
-
-void Instance::create()
-{
-	sCreateInfo.enabledLayerCount		= enabledLayerCount;
-	sCreateInfo.ppEnabledLayerNames		= ppEnabledLayerNames;
-	sCreateInfo.enabledExtensionCount	= enabledExtensionCount;
-	sCreateInfo.ppEnabledExtensionNames	= ppEnabledExtensionNames;
-
-	if ((codeOfError = vkCreateInstance(&sCreateInfo, nullptr, &self)) != VK_SUCCESS)
-	{
-		std::cout << "Code of error: " << codeOfError << std::endl;
-		throw std::runtime_error("Failed to create instance");
-	}
-	printf("%p\n", self);
 }
