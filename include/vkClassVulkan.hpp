@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/14 13:59:07 by vrichese          #+#    #+#             */
-/*   Updated: 2019/12/04 20:42:54 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/06 18:13:34 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,63 +19,29 @@ class Vulkan
 {
 	public:
 		Device		device;
-
 		Surface		surface;
-
-		VkSurfaceFormatKHR			sBestSwapChainFormat		= {};
-		VkPresentModeKHR			sBestSwapChainPresentMode	= {};
-		VkExtent2D					sBestSwapChainResolution	= {};
-		uint32_t					imageCount					= 0;
-		VkSwapchainCreateInfoKHR	sSwapChainCreateInfo		= {};
-		VkSwapchainKHR				swapchainObj				= VK_NULL_HANDLE;
-		VkImage						*pImageObjList				= nullptr;
-		/*
-		** Create Image view and setup it
-		*/
-
-		VkImageView	*pImageViewList	= nullptr;
+		RenderPass	render;
 
 		VkRenderPass		renderPass = VK_NULL_HANDLE;
-
 		VkPipelineLayout	layoutObj = VK_NULL_HANDLE;
-
 		VkPipeline			pipelineObj = VK_NULL_HANDLE;
-
 		std::vector<VkFramebuffer> swapChainFrameBuffers;
-
 		VkCommandPool		commandPool;
-
 		std::vector<VkCommandBuffer> commandBuffer;
-
 		VkSemaphore		imageAvailableSemaphore;
 		VkSemaphore		renderFinishedSemaphore;
-
 		int				error;
 
+		std::vector<char>	vkReadFile(const char *filename);
+		VkShaderModule		vkCreateNewShaderModule(const std::vector<char> &code);
 		void run(GLFWwindow *pWindow);
-
-		void vkSetupSwapChain			();
-		void vkSetupSwapChainCreateInfo	();
-		void vkCreateSwapChain			();
-
-		VkImageViewCreateInfo 	vkSetupImageViewCreateInfo	(VkImage image);
-		void 					vkCreateNewImageView			();
-
-		void					vkCreateNewRenderPass();
-
-		void 				vkCreateNewGraphicsPipeline();
-		std::vector<char> 	vkReadFile				(const char *filename);
-		VkShaderModule		vkCreateNewShaderModule	(const std::vector<char> &code);
-
-		void 				vkCreateNewFrameBuffer();
-
-		void				vkCreateNewCommandPool();
-
-		void				vkCreateNewCommandBuffers();
-
-		void 				vkCreateNewSemaphore();
-
-		void				vkDrawFrame();
+		void vkCreateNewRenderPass();
+		void vkCreateNewGraphicsPipeline();
+		void vkCreateNewFrameBuffer();
+		void vkCreateNewCommandPool();
+		void vkCreateNewCommandBuffers();
+		void vkCreateNewSemaphore();
+		void vkDrawFrame();
 };
 
 #endif

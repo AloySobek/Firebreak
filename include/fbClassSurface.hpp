@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/02 15:53:26 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/04 20:53:29 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/06 17:09:14 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,26 +31,50 @@ class Surface
 		VkSurfaceFormatKHR			sFormat			= {};
 		VkPresentModeKHR			sPresentMode	= {};
 		VkExtent2D					extent			= {WIDTH, HEIGHT};
-		VkImage						*pImages;
 
-		VkSurfaceFormatKHR			*pFormats;
-		VkPresentModeKHR			*pPresentModes;
+		VkSurfaceFormatKHR	*pFormats;
+		VkPresentModeKHR	*pPresentModes;
+
+		VkImage		*pImages;
+		VkImageView	*pImageViewList;
 
 		Surface() { }
 		Surface(void *pWindow);
 
 		void setWindow(void *pWindow);
+		void setFlags(VkSwapchainCreateFlagsKHR flags);
+		void setNext(const void *pNext);
+		void setClipped(VkBool32 clipped);
+		void setImageCount(uint32_t imagesCount);
+		void setImageArrayLayers(uint32_t imageLayers);
+		void setImageUsage(int32_t imageUsage);
+		void setOldSwapChain(VkSwapchainKHR oldSwapChain);
+		void setCompositeAlpha(VkCompositeAlphaFlagBitsKHR composite);
+		bool setupFormat(VkFormat format, VkColorSpaceKHR colorSpace);
+		bool setupPresentMode(VkPresentModeKHR presentMode);
+		bool setupExtent();
 
-		VkSurfaceCapabilitiesKHR	*getCapabilities	(Device device);
-		VkSurfaceFormatKHR			*getFormats			(Device device);
-		VkPresentModeKHR			*getPresentModes	(Device device);
+		VkSurfaceKHR				getSelf();
+		VkSwapchainKHR				getSwapchainSelf();
+		VkSwapchainCreateFlagsKHR	getFlags();
+		const void					*getNext();
+		VkSurfaceCapabilitiesKHR	*getCapabilities	(Device &device);
+		VkSurfaceCapabilitiesKHR	*getCapabilities	();
+		VkPresentModeKHR			*getPresentModes	(Device &device);
+		VkPresentModeKHR			*getPresentMode		();
+		VkSurfaceFormatKHR			*getFormats			(Device &device);
+		VkSurfaceFormatKHR			*getFormat			();
+		VkImage						*getImages			(Device &device);
 
-		void			operator()();
-		VkSurfaceKHR	operator()(Instance &instance);
-		VkSurfaceKHR	operator()(Device &device);
+		void	checkSwapChainSupporting(Device &device);
+		void	setupImageView(Device &device);
+		void	create(Instance &instance);
+		void	create(Instance &instance, void *pWindow);
+		void	createSwapchain(Device &device);
 
-		void	checkSwapChainSupporting(Device device);
-		void	setupSwapChain();
+		void	operator()(Instance &instance);
+		void	operator()(Instance &instance, void *pWindow);
+		void	operator()(Device &device);
 
 		~Surface() { }
 
@@ -60,6 +84,7 @@ class Surface
 		bool calledFormats	= false;
 		bool calledPresent	= false;
 		bool calledCapabil	= false;
+		bool calledImages	= false;
 
 		int32_t codeOfError	= false;
 };

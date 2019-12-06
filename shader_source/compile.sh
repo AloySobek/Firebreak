@@ -3,12 +3,11 @@
 #                                                         :::      ::::::::    #
 #    compile.sh                                         :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: vrichese <vrichese@student.42.fr>          +#+  +:+       +#+         #
+#    By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/11/22 16:26:07 by vrichese          #+#    #+#              #
-#    Updated: 2019/11/22 16:27:06 by vrichese         ###   ########.fr        #
+#    Updated: 2019/12/05 18:12:00 by Rustam           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-/usr/local/bin/glslangValidator -V ./vertexShader.vert
-/usr/local/bin/glslangValidator -V ./fragmentShader.frag
+glslangValidator -V $1

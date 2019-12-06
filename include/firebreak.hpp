@@ -6,15 +6,15 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/18 20:43:53 by vrichese          #+#    #+#             */
-/*   Updated: 2019/12/04 16:24:45 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/06 17:12:47 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef VK_CLASS_CONTAINER_HPP
 # define VK_CLASS_CONTAINER_HPP
 
-# define WIDTH	800
-# define HEIGHT	600
+# define WIDTH	1920
+# define HEIGHT	1080
 
 # define APPLE	1
 # define WIN32	2
@@ -58,6 +58,7 @@ class Device;
 # include "fbClassSurface.hpp"
 # include "fbClassDevice.hpp"
 # include "fbClassInstance.hpp"
+# include "fbClassRender.hpp"
 
 # include "vkClassVulkan.hpp"
 # include "vkClassWindow.hpp"

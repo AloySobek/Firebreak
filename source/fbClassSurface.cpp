@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/02 15:58:58 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/04 20:56:34 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/06 16:59:19 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,91 +22,76 @@ void Surface::setWindow(void *pWindow)
 	this->pWindow = pWindow;
 }
 
-VkSurfaceCapabilitiesKHR	*Surface::getCapabilities(Device device)
+void Surface::setFlags(VkSwapchainCreateFlagsKHR flags)
 {
-	if (!calledCapabil)
-	{
-		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.physicalSelf, self, &sCapabilities);
-		calledCapabil = true;
-	}
-	return (&sCapabilities);
+	sSwapchainCreateInfo.flags = flags;
 }
 
-VkSurfaceFormatKHR	*Surface::getFormats(Device device)
+void Surface::setNext(const void *pNext)
 {
-	if (!calledFormats)
-	{
-		vkGetPhysicalDeviceSurfaceFormatsKHR(device.physicalSelf, self, &khrFormatsCount, nullptr);
-		pFormats = (VkSurfaceFormatKHR *)malloc(sizeof(VkSurfaceFormatKHR) * khrFormatsCount);
-		vkGetPhysicalDeviceSurfaceFormatsKHR(device.physicalSelf, self, &khrFormatsCount, pFormats);
-		calledFormats = true;
-	}
-	return (pFormats);
+	sSwapchainCreateInfo.pNext = pNext;
 }
 
-VkPresentModeKHR	*Surface::getPresentModes(Device device)
+void Surface::setClipped(VkBool32 clipped)
 {
-	if (!calledPresent)
-	{
-		vkGetPhysicalDeviceSurfacePresentModesKHR(device.physicalSelf, self, &khrPresentModesCount, nullptr);
-		pPresentModes = (VkPresentModeKHR *)malloc(sizeof(VkPresentModeKHR) * khrPresentModesCount);
-		vkGetPhysicalDeviceSurfacePresentModesKHR(device.physicalSelf, self, &khrPresentModesCount, pPresentModes);
-		calledPresent = true;
-	}
-	return (pPresentModes);
+	sSwapchainCreateInfo.clipped = clipped;
 }
 
-VkSurfaceKHR	Surface::operator()(Instance &instance)
+void Surface::setImageCount(uint32_t imagesCount)
 {
-	if (!self)
-	{
-		if (!pWindow)
-			throw std::runtime_error("Failed to create surface, pointer to window has not been provided");
-		if ((codeOfError = glfwCreateWindowSurface(instance(), (GLFWwindow *)pWindow, nullptr, &self)) != VK_SUCCESS)
-		{
-			std::cout << "Code of error: " << codeOfError << std::endl;
-			throw std::runtime_error("Failed to create Surface");
-		}
-	}
-	return (self);
+	this->imagesCount = imagesCount;
+	if (sCapabilities.maxImageCount > 0 &&
+	this->imagesCount > sCapabilities.maxImageCount)
+		this->imagesCount = sCapabilities.maxImageCount;
 }
 
-void Surface::checkSwapChainSupporting(Device device)
+void Surface::setImageArrayLayers(uint32_t imageLayers)
 {
-	getCapabilities(device);
-	getPresentModes(device);
-	getFormats(device);
-	if (!khrFormatsCount || !khrPresentModesCount)
-		throw std::runtime_error("Device does not support swap chain");
+	sSwapchainCreateInfo.imageArrayLayers = imageLayers;
 }
 
-void Surface::setupSwapChain()
+void Surface::setImageUsage(int32_t imageUsage)
 {
-	bool	found = false;
+	sSwapchainCreateInfo.imageUsage = imageUsage;
+}
 
-	for (int i = 0; i < khrFormatsCount && !found; ++i)
+void Surface::setOldSwapChain(VkSwapchainKHR oldSwapchain)
+{
+	sSwapchainCreateInfo.oldSwapchain = oldSwapchain;
+}
+
+void Surface::setCompositeAlpha(VkCompositeAlphaFlagBitsKHR composite)
+{
+	sSwapchainCreateInfo.compositeAlpha = composite;
+}
+
+bool Surface::setupFormat(VkFormat format, VkColorSpaceKHR colorSpace)
+{
+	for (int i = 0; i < khrFormatsCount; ++i)
 	{
 		sFormat = pFormats[i];
-		if (sFormat.format == VK_FORMAT_B8G8R8A8_UNORM &&
-		sFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-			found = true;
+		if (sFormat.format == format &&
+		sFormat.colorSpace == colorSpace)
+			return (true);
 	}
-	if (!found)
-		sFormat = pFormats[0];
-	found = false;
+	sFormat = pFormats[0];
+	return (false);
+}
+
+bool Surface::setupPresentMode(VkPresentModeKHR presentMode)
+{
 	for (int i = 0; i < khrPresentModesCount; ++i)
 	{
 		sPresentMode = pPresentModes[i];
-		if (sPresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
-		{
-			found = true;
-			break;
-		}
-		else if (sPresentMode == VK_PRESENT_MODE_FIFO_KHR)
-			found = true;
+		if (sPresentMode == presentMode)
+			return (true);
 	}
-	if (!found)
-		sPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+	sPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+	return (false);
+}
+
+bool Surface::setupExtent()
+{
 	if (sCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
 		extent = sCapabilities.currentExtent;
 	else
@@ -115,40 +100,167 @@ void Surface::setupSwapChain()
 		std::min(sCapabilities.maxImageExtent.width, extent.width));
 		extent.height = std::max(sCapabilities.minImageExtent.height,
 		std::min(sCapabilities.maxImageExtent.height, extent.height));
+		return (true);
+	}
+	return (false);
+}
+
+VkSurfaceCapabilitiesKHR	*Surface::getCapabilities(Device &device)
+{
+	if (!calledCapabil)
+	{
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(!device, self, &sCapabilities);
+		calledCapabil = true;
+	}
+	return (&sCapabilities);
+}
+
+VkSurfaceCapabilitiesKHR	*Surface::getCapabilities()
+{
+	return (&sCapabilities);
+}
+
+VkSurfaceFormatKHR	*Surface::getFormats(Device &device)
+{
+	if (!calledFormats)
+	{
+		vkGetPhysicalDeviceSurfaceFormatsKHR(!device, self, &khrFormatsCount, nullptr);
+		pFormats = (VkSurfaceFormatKHR *)malloc(sizeof(VkSurfaceFormatKHR) * khrFormatsCount);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(!device, self, &khrFormatsCount, pFormats);
+		calledFormats = true;
+	}
+	return (pFormats);
+}
+
+VkSurfaceFormatKHR	*Surface::getFormat()
+{
+	return (&sFormat);
+}
+
+VkPresentModeKHR	*Surface::getPresentModes(Device &device)
+{
+	if (!calledPresent)
+	{
+		vkGetPhysicalDeviceSurfacePresentModesKHR(!device, self, &khrPresentModesCount, nullptr);
+		pPresentModes = (VkPresentModeKHR *)malloc(sizeof(VkPresentModeKHR) * khrPresentModesCount);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(!device, self, &khrPresentModesCount, pPresentModes);
+		calledPresent = true;
+	}
+	return (pPresentModes);
+}
+
+VkPresentModeKHR	*Surface::getPresentMode()
+{
+	return (&sPresentMode);
+}
+
+VkImage	*Surface::getImages(Device &device)
+{
+	if (!calledImages)
+	{
+		vkGetSwapchainImagesKHR(device.getSelf(), swapchain, &imagesCount, nullptr);
+		pImages = (VkImage *)malloc(sizeof(VkImage) * imagesCount);
+		vkGetSwapchainImagesKHR(device.getSelf(), swapchain, &imagesCount, pImages);
+		calledImages = true;
+	}
+	return (pImages);
+}
+
+void Surface::checkSwapChainSupporting(Device &device)
+{
+	getCapabilities(device);
+	getPresentModes(device);
+	getFormats(device);
+	if (!khrFormatsCount || !khrPresentModesCount)
+		throw std::runtime_error("Device does not support swap chain");
+}
+
+void Surface::create(Instance &instance)
+{
+	assert(pWindow);
+	if ((codeOfError = glfwCreateWindowSurface(instance(), (GLFWwindow *)pWindow, nullptr, &self)) != VK_SUCCESS)
+	{
+		std::cout << "Code of error: " << codeOfError << std::endl;
+		throw std::runtime_error("Failed to create window surface");
 	}
 }
 
-void Surface::operator()(Device &device)
+void Surface::create(Instance &instance, void *pWindow)
 {
-	uint32_t	*indexArray = device.requireIndexArray();
-	imageCount = sCapabilities.minImageCount + 1;
-	if (sCapabilities.maxImageCount > 0 && imageCount > sCapabilities.maxImageCount)
-		imageCount = sCapabilities.maxImageCount;
-	sCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	sCreateInfo.surface = self;
-	sCreateInfo.clipped = VK_TRUE;
-	sCreateInfo.minImageCount = imageCount;
-	sCreateInfo.imageFormat = sFormat.format;
-	sCreateInfo.imageColorSpace = sFormat.colorSpace;
-	sCreateInfo.imageExtent = extent;
-	sCreateInfo.imageArrayLayers = 1;
-	sCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-	sCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-	sCreateInfo.queueFamilyIndexCount = 2;
-	sCreateInfo.pQueueFamilyIndices = indexArray.data();
-	sCreateInfo.oldSwapchain = VK_NULL_HANDLE;
-	sCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-	sCreateInfo.presentMode = sPresentMode;
-	sCreateInfo.preTransform = surface.capabilities.currentTransform;
-	sCreateInfo.flags = 0;
-	sCreateInfo.pNext = nullptr;
+	this->pWindow = pWindow;
+	create(instance);
+}
 
-	if ((codeOfError = vkCreateSwapchainKHR(device.self, &sCreateInfo, nullptr, &self)) != VK_SUCCESS)
+void	Surface::createSwapchain(Device &device)
+{
+	imagesCount = sCapabilities.minImageCount + 1;
+	if (sCapabilities.maxImageCount > 0 && imagesCount > sCapabilities.maxImageCount)
+		imagesCount = sCapabilities.maxImageCount;
+	sSwapchainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	sSwapchainCreateInfo.surface = self;
+	sSwapchainCreateInfo.imageExtent = extent;
+	sSwapchainCreateInfo.imageFormat = sFormat.format;
+	sSwapchainCreateInfo.presentMode = sPresentMode;
+	sSwapchainCreateInfo.preTransform = sCapabilities.currentTransform;
+	sSwapchainCreateInfo.imageColorSpace = sFormat.colorSpace;
+	if (device.pQueues[VK_QUEUE_GRAPHICS_BIT].index != device.pQueues[VK_QUEUE_PRESENT_BIT].index)
+	{
+		sSwapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+		sSwapchainCreateInfo.pQueueFamilyIndices = device.requireIndexArray();
+		sSwapchainCreateInfo.queueFamilyIndexCount = sSwapchainCreateInfo.pQueueFamilyIndices[VK_QUEUE_PROTECTED_BIT - 1];
+	}
+	else
+		sSwapchainCreateInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+	if ((codeOfError = vkCreateSwapchainKHR(device.getSelf(), &sSwapchainCreateInfo, nullptr, &swapchain)) != VK_SUCCESS)
 	{
 		std::cout << "Code of error: " << codeOfError << std::endl;
 		throw std::runtime_error("Failed to creat SwapChain");
 	}
-	vkGetSwapchainImagesKHR(device.self, self, &imageCount, nullptr);
-	images.resize(imageCount);
-	vkGetSwapchainImagesKHR(device.self, self, &imageCount, images.data());
+}
+
+void	Surface::operator()(Instance &instance)
+{
+	create(instance);
+}
+
+void	Surface::operator()(Instance &instance, void *pWindow)
+{
+	create(instance, pWindow);
+}
+
+
+void	Surface::operator()(Device &device)
+{
+	createSwapchain(device);
+}
+
+void	Surface::setupImageView(Device &device)
+{
+	VkImageViewCreateInfo	sImageViewCreateInfo = {};
+
+	pImageViewList = new VkImageView[imagesCount];
+	for (int i = 0; i < imagesCount; ++i)
+	{
+		sImageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		sImageViewCreateInfo.image = pImages[i];
+		sImageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		sImageViewCreateInfo.format = sFormat.format;
+		sImageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+		sImageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+		sImageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+		sImageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+		sImageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		sImageViewCreateInfo.subresourceRange.baseMipLevel = 0;
+		sImageViewCreateInfo.subresourceRange.levelCount = 1;
+		sImageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
+		sImageViewCreateInfo.subresourceRange.layerCount = 1;
+		sImageViewCreateInfo.pNext = nullptr;
+		sImageViewCreateInfo.flags = 0;
+
+		if ((codeOfError = vkCreateImageView(device.getSelf(), &sImageViewCreateInfo, nullptr, &pImageViewList[i])))
+		{
+			std::cout << "Code of error: " << codeOfError << std::endl;
+			throw std::runtime_error("Failed to create image view object");
+		}
+	}
 }

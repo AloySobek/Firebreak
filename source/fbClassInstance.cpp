@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 13:35:59 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/04 19:30:52 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/06 14:46:35 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,21 +14,14 @@
 
 Instance::Instance(const void *pNext)
 {
-	init();
 	sCreateInfo.pNext = pNext;
-}
-
-Instance::Instance(VkInstanceCreateFlags flags, const void *pNext)
-{
-	init();
-	sCreateInfo.flags = flags;
-	sCreateInfo.pNext = pNext;
-}
-
-void Instance::init()
-{
 	sCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 	sCreateInfo.pApplicationInfo = nullptr;
+}
+
+Instance::Instance(VkInstanceCreateFlags flags, const void *pNext) : Instance(pNext)
+{
+	sCreateInfo.flags = flags;
 }
 
 void	Instance::setupAppInfo(const char *pAppName, const char *pEngineName, uint32_t appVersion, uint32_t engineVersion)
@@ -124,20 +117,23 @@ uint32_t	Instance::getExtensionsAmount()
 	return (availableExtensionsCount);
 }
 
+void Instance::create()
+{
+	sCreateInfo.enabledLayerCount		= enabledLayerCount;
+	sCreateInfo.ppEnabledLayerNames		= ppEnabledLayerNames;
+	sCreateInfo.enabledExtensionCount	= enabledExtensionCount;
+	sCreateInfo.ppEnabledExtensionNames	= ppEnabledExtensionNames;
+	if ((codeOfError = vkCreateInstance(&sCreateInfo, nullptr, &self)) != VK_SUCCESS)
+	{
+		std::cout << "Code of error: " << codeOfError << std::endl;
+		throw std::runtime_error("Failed to create instance");
+	}
+}
+
 VkInstance Instance::operator()(void)
 {
 	if (!self)
-	{
-		sCreateInfo.enabledLayerCount		= enabledLayerCount;
-		sCreateInfo.ppEnabledLayerNames		= ppEnabledLayerNames;
-		sCreateInfo.enabledExtensionCount	= enabledExtensionCount;
-		sCreateInfo.ppEnabledExtensionNames	= ppEnabledExtensionNames;
-		if ((codeOfError = vkCreateInstance(&sCreateInfo, nullptr, &self)) != VK_SUCCESS)
-		{
-			std::cout << "Code of error: " << codeOfError << std::endl;
-			throw std::runtime_error("Failed to create instance");
-		}
-	}
+		create();
 	return (self);
 }
 

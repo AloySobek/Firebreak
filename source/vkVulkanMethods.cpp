@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/10/14 13:55:17 by vrichese          #+#    #+#             */
-/*   Updated: 2019/12/04 20:53:59 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/06 19:10:13 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,9 @@ namespace PhysicalDeviceLayersExtensions
 	};
 	std::vector<const char *> ppDesiredExtensions =
 	{
-		"VK_KHR_surface",
+		//"VK_KHR_surface",
 		"VK_KHR_swapchain",
-		"VK_MVK_macos_surface",
+		//"VK_MVK_macos_surface",
 	};
 }
 
@@ -61,177 +61,59 @@ void Vulkan::run(GLFWwindow *pWindow)
 	instance.setupAppInfo("Triangle", "NoEngine");
 	instance.setupLayers(InstanceLayersExtensions::ppDesiredLayers);
 	instance.setupExtensions(InstanceLayersExtensions::ppDesiredExtensions);
-	instance();
-	surface.setWindow(pWindow);
-	surface(instance);
+	instance.create();
+
+	surface.create(instance, pWindow);
 
 	device.getPhysicalDevices(instance);
 	device.attachPhysicalDevice(VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU);
-	device.getQueueFamilies();
 	device.setupLayers(PhysicalDeviceLayersExtensions::ppDesiredLayers);
 	device.setupExtensions(PhysicalDeviceLayersExtensions::ppDesiredExtensions);
 
 	surface.getFormats(device);
 	surface.getPresentModes(device);
 	surface.getCapabilities(device);
-
 	surface.checkSwapChainSupporting(device);
 
+	device.getQueuesFamiliesProperties();
 	if (!device.checkCompatibleWithSurface(surface))
 		throw std::runtime_error("Surface and device not compatible");
 	device.setupQueue(VK_QUEUE_PRESENT_BIT, 1.0f, 1);
 	device.setupQueue(VK_QUEUE_GRAPHICS_BIT, 1.0f, 1);
-	device();
+	device.create();
+	device.getQueuesFamilies();
 
-	surface.setupSwapChain();
-	surface(device);
+	if (!surface.setupFormat(VK_FORMAT_B8G8R8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR))
+		std::cout << "Necessary format or color space not found, standart setting enabled\n";
+	if (!surface.setupPresentMode(VK_PRESENT_MODE_MAILBOX_KHR))
+		if (!surface.setupPresentMode(VK_PRESENT_MODE_FIFO_KHR))
+			std::cout << "NEcessary present mode not found, standart present mode enabled\n";
+	surface.setupExtent();
+	surface.setClipped(VK_TRUE);
+	surface.setImageCount(surface.getCapabilities()->minImageCount + 1);
+	surface.setImageArrayLayers(1);
+	surface.setOldSwapChain(VK_NULL_HANDLE);
+	surface.setCompositeAlpha(VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR);
+	surface.setImageUsage(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
+	surface.createSwapchain(device);
+	surface.getImages(device);
+	surface.setupImageView(device);
 
-	vkCreateNewImageView();
+	render.getColorAttachmentSettings()->format			= surface.getFormat()->format;
+	render.getColorAttachmentSettings()->samples		= VK_SAMPLE_COUNT_1_BIT;
+	render.getColorAttachmentSettings()->loadOp			= VK_ATTACHMENT_LOAD_OP_CLEAR;
+	render.getColorAttachmentSettings()->storeOp		= VK_ATTACHMENT_STORE_OP_STORE;
+	render.getColorAttachmentSettings()->stencilLoadOp	= VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+	render.getColorAttachmentSettings()->stencilStoreOp	= VK_ATTACHMENT_STORE_OP_DONT_CARE;
+	render.getColorAttachmentSettings()->initialLayout	= VK_IMAGE_LAYOUT_UNDEFINED;
+	render.getColorAttachmentSettings()->finalLayout	= VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
 	vkCreateNewRenderPass();
 	vkCreateNewGraphicsPipeline();
 	vkCreateNewFrameBuffer();
 	vkCreateNewCommandPool();
 	vkCreateNewCommandBuffers();
 	vkCreateNewSemaphore();
-}
-
-void Vulkan::vkSetupSwapChain()
-{
-	VkSurfaceFormatKHR	surfaceIter = {};
-	VkPresentModeKHR	presentIter = {};
-	VkBool32			found = false;
-
-	for (int i = 0; i < surface.khrFormatsCount; ++i)
-	{
-		surfaceIter = surface.pFormats[i];
-		if (surfaceIter.format == VK_FORMAT_B8G8R8A8_UNORM and surfaceIter.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
-		{
-			sBestSwapChainFormat = surfaceIter;
-			found = true;
-			break;
-		}
-	}
-	if (!found)
-	{
-		std::cout << "Best swap chain format has not been found" << std::endl;
-		sBestSwapChainFormat = surface.pFormats[0];
-	}
-	found = false;
-	for (int i = 0; i < surface.khrPresentModesCount; ++i)
-	{
-		presentIter = surface.pPresentModes[i];
-		if (presentIter == VK_PRESENT_MODE_MAILBOX_KHR)
-		{
-			sBestSwapChainPresentMode = presentIter;
-			found = true;
-			break;
-		}
-		else if (presentIter == VK_PRESENT_MODE_FIFO_KHR)
-		{
-			sBestSwapChainPresentMode = presentIter;
-			found = true;
-		}
-	}
-	if (!found)
-	{
-		std::cout << "Best swap chain present mode has not been found" << std::endl;
-		sBestSwapChainPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
-	}
-	if (surface.sCapabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
-	{
-		std::cout << "Standart setting\n";
-		sBestSwapChainResolution = surface.sCapabilities.currentExtent;
-	}
-	else
-	{
-		std::cout << "Custom setting\n";
-		sBestSwapChainResolution.width = std::max(surface.sCapabilities.minImageExtent.width,
-		std::min(surface.sCapabilities.maxImageExtent.width, sBestSwapChainResolution.width));
-		sBestSwapChainResolution.height = std::max(surface.sCapabilities.minImageExtent.height,
-		std::min(surface.sCapabilities.maxImageExtent.height, sBestSwapChainResolution.height));
-	}
-}
-
-void Vulkan::vkSetupSwapChainCreateInfo()
-{
-	uint32_t	indexArray[2];
-
-	indexArray[0] = device.pIndexArray[VK_QUEUE_GRAPHICS_BIT];
-	indexArray[1] = device.pIndexArray[VK_QUEUE_PRESENT_BIT];
-	imageCount = surface.sCapabilities.minImageCount + 1;
-	if (surface.sCapabilities.maxImageCount > 0 and imageCount > surface.sCapabilities.maxImageCount)
-	{
-		std::cout << "Standart image count has been setup\n";
-		imageCount = surface.sCapabilities.maxImageCount;
-	}
-	sSwapChainCreateInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	sSwapChainCreateInfo.surface = surface.self;
-	sSwapChainCreateInfo.flags = 0;
-	sSwapChainCreateInfo.pNext = nullptr;
-	sSwapChainCreateInfo.clipped = VK_TRUE;
-	sSwapChainCreateInfo.minImageCount = imageCount;
-	sSwapChainCreateInfo.imageFormat = sBestSwapChainFormat.format;
-	sSwapChainCreateInfo.imageColorSpace = sBestSwapChainFormat.colorSpace;
-	sSwapChainCreateInfo.imageExtent = sBestSwapChainResolution;
-	sSwapChainCreateInfo.imageArrayLayers = 1;
-	sSwapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-	sSwapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-	sSwapChainCreateInfo.queueFamilyIndexCount = 2;
-	sSwapChainCreateInfo.pQueueFamilyIndices = indexArray;
-	sSwapChainCreateInfo.oldSwapchain = VK_NULL_HANDLE;
-	sSwapChainCreateInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-	sSwapChainCreateInfo.presentMode = sBestSwapChainPresentMode;
-	sSwapChainCreateInfo.preTransform = surface.sCapabilities.currentTransform;
-}
-
-void Vulkan::vkCreateSwapChain()
-{
-	if ((error = vkCreateSwapchainKHR(device.self, &sSwapChainCreateInfo, nullptr, &swapchainObj)) != VK_SUCCESS)
-	{
-		std::cout << "Code of error: " << error << std::endl;
-		throw std::runtime_error("Failed to creat SwapChain");
-	}
-	vkGetSwapchainImagesKHR(device.self, swapchainObj, &imageCount, nullptr);
-	pImageObjList = (VkImage *)malloc(sizeof(VkImage) * imageCount);
-	vkGetSwapchainImagesKHR(device.self, swapchainObj, &imageCount, pImageObjList);
-}
-
-VkImageViewCreateInfo Vulkan::vkSetupImageViewCreateInfo(VkImage image)
-{
-	VkImageViewCreateInfo	sImageViewCreateInfo = {};
-
-	sImageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-	sImageViewCreateInfo.pNext = nullptr;
-	sImageViewCreateInfo.flags = 0;
-	sImageViewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-	sImageViewCreateInfo.format = sBestSwapChainFormat.format;
-	sImageViewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-	sImageViewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-	sImageViewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-	sImageViewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-	sImageViewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-	sImageViewCreateInfo.subresourceRange.baseMipLevel = 0;
-	sImageViewCreateInfo.subresourceRange.levelCount = 1;
-	sImageViewCreateInfo.subresourceRange.baseArrayLayer = 0;
-	sImageViewCreateInfo.subresourceRange.layerCount = 1;
-	sImageViewCreateInfo.image = image;
-	return (sImageViewCreateInfo);
-}
-
-void Vulkan::vkCreateNewImageView()
-{
-	VkImageViewCreateInfo	sImageViewCreateInfo = {};
-
-	pImageViewList = (VkImageView *)malloc(sizeof(VkImageView) * imageCount);
-	for (int i = 0; i < imageCount; ++i)
-	{
-		sImageViewCreateInfo = this->vkSetupImageViewCreateInfo(pImageObjList[i]);
-		if ((error = vkCreateImageView(device.self, &sImageViewCreateInfo, nullptr, &pImageViewList[i])))
-		{
-			std::cout << "Code of error: " << error << std::endl;
-			throw std::runtime_error("Failed to create image view object");
-		}
-	}
 }
 
 /*
@@ -245,7 +127,7 @@ void Vulkan::vkCreateNewRenderPass()
 	VkAttachmentReference	colorAttachmentRef	= {};
 	VkSubpassDescription	subpass				= {};
 
-	colorAttachment.format			= sBestSwapChainFormat.format;
+	colorAttachment.format			= surface.sFormat.format;
 	colorAttachment.samples			= VK_SAMPLE_COUNT_1_BIT;
 	colorAttachment.loadOp			= VK_ATTACHMENT_LOAD_OP_CLEAR;
 	colorAttachment.storeOp			= VK_ATTACHMENT_STORE_OP_STORE;
@@ -271,17 +153,17 @@ void Vulkan::vkCreateNewRenderPass()
 
 	VkSubpassDependency dependency = {};
 
-			dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-			dependency.dstSubpass = 0;
-			dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-			dependency.srcAccessMask = 0;
-			dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-			dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+	dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+	dependency.dstSubpass = 0;
+	dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.srcAccessMask = 0;
+	dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+	dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 
 	render.dependencyCount			= 1;
 	render.pDependencies			= &dependency;
 
-	if ((error = vkCreateRenderPass(device.self, &render, nullptr, &renderPass)) != VK_SUCCESS)
+	if ((error = vkCreateRenderPass(device(), &render, nullptr, &renderPass)) != VK_SUCCESS)
 	{
 		std::cout << "Code of error " << error << std::endl;
 		throw std::runtime_error("Failed to create render pass");
@@ -299,7 +181,7 @@ VkShaderModule		Vulkan::vkCreateNewShaderModule(const std::vector<char> &code)
 	sShaderModuleCreateInfo.pCode		= reinterpret_cast<const uint32_t *>(code.data());
 	sShaderModuleCreateInfo.pNext		= nullptr;
 
-	if ((error = vkCreateShaderModule(device.self, &sShaderModuleCreateInfo, nullptr, &shaderModuleObj)) != VK_SUCCESS)
+	if ((error = vkCreateShaderModule(device(), &sShaderModuleCreateInfo, nullptr, &shaderModuleObj)) != VK_SUCCESS)
 	{
 		std::cout << "Code of error" << error << std::endl;
 		throw std::runtime_error("Failed to create shader module");
@@ -398,13 +280,13 @@ void Vulkan::vkCreateNewGraphicsPipeline()
 
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
+	viewport.width = (float)surface.extent.width;
+	viewport.height = (float)surface.extent.height;
 	viewport.maxDepth = 1.0f;
 	viewport.minDepth = 0.0f;
-	viewport.width = (float)sBestSwapChainResolution.width;
-	viewport.height = (float)sBestSwapChainResolution.height;
 
 	scissor.offset = {0, 0};
-	scissor.extent = sBestSwapChainResolution;
+	scissor.extent = surface.extent;
 
 	viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 	viewportState.flags = 0;
@@ -420,7 +302,7 @@ void Vulkan::vkCreateNewGraphicsPipeline()
 	rasterizer.depthClampEnable = VK_FALSE;
 	rasterizer.rasterizerDiscardEnable = VK_FALSE;
 	rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-	rasterizer.lineWidth = 1.0f;
+	rasterizer.lineWidth = 0.5f;
 	rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
 	rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
 	rasterizer.depthBiasEnable = VK_FALSE;
@@ -473,7 +355,7 @@ void Vulkan::vkCreateNewGraphicsPipeline()
 	layoutCreateInfo.pushConstantRangeCount = 0;
 	layoutCreateInfo.pPushConstantRanges = nullptr;
 
-	if ((error = vkCreatePipelineLayout(device.self, &layoutCreateInfo, nullptr, &layoutObj)) != VK_SUCCESS)
+	if ((error = vkCreatePipelineLayout(device(), &layoutCreateInfo, nullptr, &layoutObj)) != VK_SUCCESS)
 	{
 		std::cout << "Code of error" << error << std::endl;
 		throw std::runtime_error("Failed to create Pipeline layout");
@@ -501,7 +383,7 @@ void Vulkan::vkCreateNewGraphicsPipeline()
 	pipeline.basePipelineIndex = -1;
 	pipeline.pTessellationState = nullptr;
 
-	if ((error = vkCreateGraphicsPipelines(device.self, VK_NULL_HANDLE, 1, &pipeline, nullptr, &pipelineObj)) != VK_SUCCESS)
+	if ((error = vkCreateGraphicsPipelines(device(), VK_NULL_HANDLE, 1, &pipeline, nullptr, &pipelineObj)) != VK_SUCCESS)
 	{
 		std::cout << "Code of error: " << error << std::endl;
 		throw std::runtime_error("Failed to create pipeline");
@@ -510,11 +392,11 @@ void Vulkan::vkCreateNewGraphicsPipeline()
 
 void Vulkan::vkCreateNewFrameBuffer()
 {
-	swapChainFrameBuffers.resize(imageCount);
+	swapChainFrameBuffers.resize(surface.imagesCount);
 
-	for (int i = 0; i < imageCount; ++i)
+	for (int i = 0; i < surface.imagesCount; ++i)
 	{
-		VkImageView attachments[] = { pImageViewList[i] };
+		VkImageView attachments[] = { surface.pImageViewList[i] };
 		VkFramebufferCreateInfo	createInfo = {};
 
 		createInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
@@ -523,10 +405,10 @@ void Vulkan::vkCreateNewFrameBuffer()
 		createInfo.renderPass = renderPass;
 		createInfo.attachmentCount = 1;
 		createInfo.pAttachments = attachments;
-		createInfo.height = sBestSwapChainResolution.height;
-		createInfo.width = sBestSwapChainResolution.width;
+		createInfo.height = surface.extent.height;
+		createInfo.width = surface.extent.width;
 		createInfo.layers = 1;
-		if ((error = vkCreateFramebuffer(device.self, &createInfo, nullptr, &swapChainFrameBuffers[i])) != VK_SUCCESS)
+		if ((error = vkCreateFramebuffer(device(), &createInfo, nullptr, &swapChainFrameBuffers[i])) != VK_SUCCESS)
 		{
 			std::cout << "Code of error: " << error << std::endl;
 			throw std::runtime_error("Failed to create on of your buffers");
@@ -541,9 +423,9 @@ void Vulkan::vkCreateNewCommandPool()
 	createInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 	createInfo.pNext = nullptr;
 	createInfo.flags = 0;
-	createInfo.queueFamilyIndex = device.pIndexArray[VK_QUEUE_GRAPHICS_BIT];
+	createInfo.queueFamilyIndex = device.pQueues[VK_QUEUE_GRAPHICS_BIT].index;
 
-	if ((error = vkCreateCommandPool(device.self, &createInfo, nullptr, &commandPool)))
+	if ((error = vkCreateCommandPool(device(), &createInfo, nullptr, &commandPool)))
 	{
 		std::cout << "Code of error: " << error << std::endl;
 		throw std::runtime_error("Failed to create command pool");
@@ -561,7 +443,7 @@ void Vulkan::vkCreateNewCommandBuffers()
 	allocInfo.commandPool = commandPool;
 	allocInfo.commandBufferCount = commandBuffer.size();
 
-	if ((error = vkAllocateCommandBuffers(device.self, &allocInfo, commandBuffer.data())) != VK_SUCCESS)
+	if ((error = vkAllocateCommandBuffers(device(), &allocInfo, commandBuffer.data())) != VK_SUCCESS)
 	{
 		std::cout << "Code of error: " << error << std::endl;
 		throw std::runtime_error("Failed to crate command buffers");
@@ -588,7 +470,7 @@ void Vulkan::vkCreateNewCommandBuffers()
 		renderPassInfo.renderPass = renderPass;
 		renderPassInfo.framebuffer = swapChainFrameBuffers[i];
 		renderPassInfo.renderArea.offset = {0, 0};
-		renderPassInfo.renderArea.extent = sBestSwapChainResolution;
+		renderPassInfo.renderArea.extent = surface.extent;
 
 		VkClearValue	clearColor = {0.0f, 0.0f, 0.0f, 1.0f};
 
@@ -616,13 +498,13 @@ void Vulkan::vkCreateNewSemaphore()
 	createInfo.pNext = nullptr;
 	createInfo.flags = 0;
 
-	if ((error = vkCreateSemaphore(device.self, &createInfo, nullptr, &renderFinishedSemaphore)) != VK_SUCCESS)
+	if ((error = vkCreateSemaphore(device(), &createInfo, nullptr, &renderFinishedSemaphore)) != VK_SUCCESS)
 	{
 		std::cout << "Code fo error1: " << error << std::endl;
 		throw std::runtime_error("Failed to create semaphore");
 	}
 
-	if ((error = vkCreateSemaphore(device.self, &createInfo, nullptr, &imageAvailableSemaphore)) != VK_SUCCESS)
+	if ((error = vkCreateSemaphore(device(), &createInfo, nullptr, &imageAvailableSemaphore)) != VK_SUCCESS)
 	{
 		std::cout << "Code fo error2: " << error << std::endl;
 		throw std::runtime_error("Failed to create semaphore");
@@ -633,7 +515,7 @@ void Vulkan::vkDrawFrame()
 {
 	uint32_t imageIndex;
 
-	vkAcquireNextImageKHR(device.self, swapchainObj, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+	vkAcquireNextImageKHR(device(), surface.swapchain, std::numeric_limits<uint64_t>::max(), imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
 	VkSubmitInfo submitInfo = {};
 
 	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -653,7 +535,7 @@ void Vulkan::vkDrawFrame()
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphore;
 
-	if ((error = vkQueueSubmit(device.pQueues[VK_QUEUE_GRAPHICS_BIT], 1, &submitInfo, VK_NULL_HANDLE)) != VK_SUCCESS)
+	if ((error = vkQueueSubmit(device.pQueues[VK_QUEUE_GRAPHICS_BIT].self, 1, &submitInfo, VK_NULL_HANDLE)) != VK_SUCCESS)
 	{
 		std::cout << "Code of error: " << error << std::endl;
 		throw std::runtime_error("Failed to submit");
@@ -666,11 +548,11 @@ void Vulkan::vkDrawFrame()
 	present.waitSemaphoreCount = 1;
 	present.pWaitSemaphores = waiteSemaphores;
 
-	VkSwapchainKHR	swapChains[] = {swapchainObj};
+	VkSwapchainKHR	swapChains[] = {surface.swapchain};
 
 	present.swapchainCount = 1;
 	present.pSwapchains = swapChains;
 	present.pImageIndices = &imageIndex;
 	present.pResults = nullptr;
-	vkQueuePresentKHR(device.pQueues[VK_QUEUE_PRESENT_BIT], &present);
+	vkQueuePresentKHR(device.pQueues[VK_QUEUE_PRESENT_BIT].self, &present);
 }

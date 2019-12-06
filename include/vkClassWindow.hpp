@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/18 20:50:43 by vrichese          #+#    #+#             */
-/*   Updated: 2019/12/04 20:23:21 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/05 15:51:10 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ class Window
 			mpWindow = glfwCreateWindow(mWidth, mHeight, "Vulkan", nullptr, nullptr);
 		}
 
-		void mainLoop(Vulkan vulkan)
+		void mainLoop(Vulkan &vulkan)
 		{
 			while (!glfwWindowShouldClose(mpWindow))
 			{

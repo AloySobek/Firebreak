@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 16:22:46 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/04 20:23:04 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/06 14:46:38 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,29 +15,12 @@
 
 # include "firebreak.hpp"
 
-# define INSTANCE_EASY_MODE 1
-
 class Instance
 {
 	public:
-		VkInstance self = VK_NULL_HANDLE;
-
-		u_int32_t enabledLayerCount			= 0;
-		u_int32_t availableLayersCount		= 0;
-		u_int32_t enabledExtensionCount		= 0;
-		u_int32_t availableExtensionsCount	= 0;
-
-		VkLayerProperties	  *pAvailableLayers;
-		VkExtensionProperties *pAvailableExtensions;
-
-		const char **ppEnabledLayerNames;
-		const char **ppEnabledExtensionNames;
-
 		Instance(const void *pNext);
 		Instance(VkInstanceCreateFlags flags = VK_NULL_HANDLE, const void *pNext = nullptr);
-		Instance(Instance *anotherInstance) { };
-
-		void init();
+		Instance(Instance &anotherInstance) { };
 
 		void setupNext(const void *pNext);
 		void setupFlags(VkInstanceCreateFlags flags);
@@ -57,13 +40,27 @@ class Instance
 		uint32_t				getLayersAmount();
 		uint32_t				getExtensionsAmount();
 
+		void create();
+
 		VkInstance operator()(void);
 
 		~Instance() { }
 
 	private:
-		VkInstanceCreateInfo sCreateInfo		= {};
-		VkApplicationInfo	 sApplicationInfo	= {};
+		VkInstance				self				= VK_NULL_HANDLE;
+		VkInstanceCreateInfo	sCreateInfo			= {};
+		VkApplicationInfo		sApplicationInfo	= {};
+
+		VkLayerProperties	  *pAvailableLayers;
+		VkExtensionProperties *pAvailableExtensions;
+
+		const char **ppEnabledLayerNames;
+		const char **ppEnabledExtensionNames;
+
+		u_int32_t enabledLayerCount			= 0;
+		u_int32_t availableLayersCount		= 0;
+		u_int32_t enabledExtensionCount		= 0;
+		u_int32_t availableExtensionsCount	= 0;
 
 		bool	calledLayers	 	= false;
 		bool	calledExtensions 	= false;
