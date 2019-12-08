@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 19:29:48 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/06 18:47:46 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/08 14:29:14 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -259,6 +259,7 @@ bool Device::isPhysicalDeviceSuitable(VkPhysicalDevice device, uint32_t type)
 	vkGetPhysicalDeviceFeatures(device, &sFeatures);
 	vkGetPhysicalDeviceProperties(device, &sProperties);
 	vkGetPhysicalDeviceMemoryProperties(device, &sMemoryProperties);
+	vkGetPhysicalDeviceFormatProperties(device, (VkFormat)0, nullptr);
 	return (sProperties.deviceType == type);
 }
 

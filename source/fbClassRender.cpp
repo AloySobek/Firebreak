@@ -6,16 +6,16 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/06 17:11:52 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/06 19:10:33 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/08 13:22:33 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "firebreak.hpp"
 
-VkAttachmentDescription *RenderPass::getColorAttachmentSettings()
-{
-	return (&sColorAttachment);
-}
+// VkAttachmentDescription *RenderPass::getColorAttachmentSettings()
+// {
+// 	return (&sColorAttachment);
+// }
 
 void RenderPass::create(Device &device)
 {
