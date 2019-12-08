@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/18 20:43:53 by vrichese          #+#    #+#             */
-/*   Updated: 2019/12/06 17:12:47 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/08 19:05:59 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,24 +44,17 @@ class Device;
 
 # include <fstream>
 # include <iostream>
-# include <string>
 # include <stdexcept>
 # include <functional>
-# include <cstdlib>
-# include <cstring>
 # include <vector>
 # include <algorithm>
 # include <cassert>
 # include "/usr/local/include/vulkan/vulkan.h"
-# include "../include/glfw3.h"
+# include "/Users/vrichese/Workspace/Rus42/MyProjects/WanderingStar/include/glfw3.h"
 
 # include "fbClassSurface.hpp"
 # include "fbClassDevice.hpp"
 # include "fbClassInstance.hpp"
 # include "fbClassRender.hpp"
-
-# include "vkClassVulkan.hpp"
-# include "vkClassWindow.hpp"
-# include "vkClassTriangle.hpp"
 
 #endif
