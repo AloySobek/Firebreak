@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 16:22:46 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/08 20:12:07 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/09 20:48:40 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,29 +18,24 @@
 class Instance
 {
 	public:
-		Instance(const void *pNext);
-		Instance(VkInstanceCreateFlags flags = VK_NULL_HANDLE, const void *pNext = nullptr);
+		Instance();
 		Instance(Instance &anotherInstance) { };
 
-		void setupNext(const void *pNext);
-		void setupFlags(VkInstanceCreateFlags flags);
-		void setupAppInfo(const char *pAppName = "Firebreak",
-							const char *pEngineName = "NoEngine",
-								uint32_t appVersion = VK_MAKE_VERSION(1, 0, 0),
-									uint32_t engineVersion = VK_MAKE_VERSION(1, 0, 0));
-		void setupLayers(std::vector<const char *> &desiredLayers);
-		void setupExtensions(std::vector<const char *> &desiredExtensions);
+		void setLayers(const char **desiredLayers, uint32_t size);
+		void setExtensions(const char **desiredExtensions, uint32_t size);
 
 		VkInstance				getSelf();
-		VkInstanceCreateFlags	getFlags();
-		const void				*getNext();
-		const VkApplicationInfo	*getAppInfo();
-		VkLayerProperties		*getLayers();
-		VkExtensionProperties	*getExtensions();
-		uint32_t				getLayersAmount();
-		uint32_t				getExtensionsAmount();
+		VkApplicationInfo		*getAppInfo();
+		VkInstanceCreateInfo	*getCreateInfo();
+		VkAllocationCallbacks	*getAllocationInfo();
+		VkLayerProperties		*getAvailableLayers();
+		VkLayerProperties		*getAvailableLayers(uint32_t *size);
+		VkExtensionProperties	*getAvailableExtensions();
+		VkExtensionProperties	*getAvailableExtensions(uint32_t *size);
+		VkPhysicalDevice		*getPhysicalDevices();
+		VkPhysicalDevice		*getPhysicalDevices(uint32_t *size);
 
-		void create();
+		void create(int mode = VK_NULL_HANDLE);
 
 		VkInstance operator()(void);
 
@@ -50,24 +45,23 @@ class Instance
 		VkInstance				self				= VK_NULL_HANDLE;
 		VkInstanceCreateInfo	sCreateInfo			= {};
 		VkApplicationInfo		sApplicationInfo	= {};
+		VkAllocationCallbacks	sAllocation			= {};
 
-		VkLayerProperties	  *pAvailableLayers;
-		VkExtensionProperties *pAvailableExtensions;
+		VkPhysicalDevice		*pAvailablePhysicalDevices;
+		VkLayerProperties		*pAvailableLayers;
+		VkExtensionProperties	*pAvailableExtensions;
 
-		const char **ppEnabledLayerNames;
-		const char **ppEnabledExtensionNames;
-
-		u_int32_t enabledLayerCount			= 0;
-		u_int32_t availableLayersCount		= 0;
-		u_int32_t enabledExtensionCount		= 0;
-		u_int32_t availableExtensionsCount	= 0;
+		uint32_t availablePhysicalDeviceCount	= 0;
+		uint32_t availableLayersCount			= 0;
+		uint32_t availableExtensionsCount		= 0;
 
 		bool	calledLayers	 	= false;
 		bool	calledExtensions 	= false;
+		bool	calledDevices		= false;
 		int32_t	codeOfError			= false;
 
-		bool	isLayerSuitable(VkLayerProperties sLayer, std::vector<const char *> &desiredLayers);
-		bool	isExtensionSuitable(VkExtensionProperties sExtension, std::vector<const char *> &desiredExtensions);
+		bool	isLayerSuitable(VkLayerProperties sLayer, const char **desiredLayers, uint32_t size);
+		bool	isExtensionSuitable(VkExtensionProperties sExtension, const char **desiredExtensions, uint32_t size);
 };
 
 #endif

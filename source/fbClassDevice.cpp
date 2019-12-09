@@ -6,49 +6,34 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 19:29:48 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/08 19:18:25 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/09 16:14:03 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "firebreak.hpp"
 
-Device::Device(const void *pNext)
+Device::Device()
 {
-	sCreateInfo.pNext = pNext;
-	sCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	sCreateInfo.pEnabledFeatures = &sFeatures;
+	sCreateInfo.sType				= VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	sCreateInfo.pEnabledFeatures	= &sFeatures;
+	sCreateInfo.pQueueCreateInfos	= pQueueFamiliesCreateInfos;
 	memset(pQueues, -1, VK_QUEUE_PROTECTED_BIT * sizeof(FbQueue_t));
 }
 
-Device::Device(VkDeviceCreateFlags flags, const void *pNext) : Device(pNext)
+void Device::setLayers(const char **desiredLayers, uint32_t size)
 {
-	sCreateInfo.flags = flags;
-}
-
-void Device::setupFlags(VkInstanceCreateFlags flags)
-{
-	sCreateInfo.flags = flags;
-}
-
-void Device::setupNext(const void *pNext)
-{
-	sCreateInfo.pNext = pNext;
-}
-
-void Device::setupLayers(std::vector<const char *> &desiredLayers)
-{
-	getLayers();
+	getAvailableLayers();
 	for (int i = 0; i < availableLayersCount; ++i)
-		if (isLayerSuitable(pAvailableLayers[i], desiredLayers))
-			ppEnabledLayerNames[enabledLayerCount++] = pAvailableLayers[i].layerName;
+		if (isLayerSuitable(pAvailableLayers[i], desiredLayers, size))
+			((char **)sCreateInfo.ppEnabledLayerNames)[sCreateInfo.enabledLayerCount++] = pAvailableLayers[i].layerName;
 }
 
-void Device::setupExtensions(std::vector<const char *> &desiredExtensions)
+void Device::setExtensions(const char **desiredExtensions, uint32_t size)
 {
-	getExtensions();
+	getAvailableExtensions();
 	for (int i = 0; i < availableExtensionsCount; ++i)
-		if (isExtensionSuitable(pAvailableExtensions[i], desiredExtensions))
-			ppEnabledExtensionNames[enabledExtensionCount++] = pAvailableExtensions[i].extensionName;
+		if (isExtensionSuitable(pAvailableExtensions[i], desiredExtensions, size))
+			((char **)sCreateInfo.ppEnabledExtensionNames)[sCreateInfo.enabledExtensionCount++] = pAvailableExtensions[i].extensionName;
 }
 
 VkDevice	Device::getSelf()
@@ -61,18 +46,6 @@ VkPhysicalDevice	Device::getPhysicalSelf()
 {
 	assert(physicalSelf);
 	return (physicalSelf);
-}
-
-VkPhysicalDevice	*Device::getPhysicalDevices(Instance &instance)
-{
-	if (!retrieveDevices)
-	{
-		vkEnumeratePhysicalDevices(instance.getSelf(), &availablePhysicalDeviceCount, nullptr);
-		pAvailablePhysicalDevices = new VkPhysicalDevice[availablePhysicalDeviceCount];
-		vkEnumeratePhysicalDevices(instance.getSelf(), &availablePhysicalDeviceCount, pAvailablePhysicalDevices);
-		retrieveDevices = true;
-	}
-	return (pAvailablePhysicalDevices);
 }
 
 VkPhysicalDeviceFeatures	*Device::getFeatures()
@@ -90,26 +63,26 @@ VkPhysicalDeviceMemoryProperties	*Device::getMemoryProperties()
 	return (&sMemoryProperties);
 }
 
-VkLayerProperties	*Device::getLayers()
+VkLayerProperties	*Device::getAvailableLayers()
 {
 	if (!calledLayers)
 	{
 		vkEnumerateDeviceLayerProperties(physicalSelf, &availableLayersCount, nullptr);
 		pAvailableLayers = new VkLayerProperties[availableLayersCount];
-		ppEnabledLayerNames = new const char *[availableLayersCount];
+		sCreateInfo.ppEnabledLayerNames = new const char *[availableLayersCount];
 		vkEnumerateDeviceLayerProperties(physicalSelf, &availableLayersCount, pAvailableLayers);
 		calledLayers = true;
 	}
 	return (pAvailableLayers);
 }
 
-VkExtensionProperties	*Device::getExtensions()
+VkExtensionProperties	*Device::getAvailableExtensions()
 {
 	if (!calledExtensions)
 	{
 		vkEnumerateDeviceExtensionProperties(physicalSelf, nullptr, &availableExtensionsCount, nullptr);
 		pAvailableExtensions = new VkExtensionProperties[availableExtensionsCount];
-		ppEnabledExtensionNames = new const char *[availableExtensionsCount];
+		sCreateInfo.ppEnabledExtensionNames = new const char *[availableExtensionsCount];
 		vkEnumerateDeviceExtensionProperties(physicalSelf, nullptr, &availableExtensionsCount, pAvailableExtensions);
 		calledExtensions = true;
 	}
@@ -140,79 +113,48 @@ FbQueue_t	*Device::getQueuesFamilies()
 	return (pQueues);
 }
 
-uint32_t Device::getLayersAmount()
+void Device::attachPhysicalDevice(int type, VkPhysicalDevice *pPhysicalDevices, uint32_t size)
 {
-	return (availableLayersCount);
-}
-
-uint32_t Device::getExtensionsAmount()
-{
-	return (availableExtensionsCount);
-}
-
-uint32_t Device::getPhysicalDevicesAmount()
-{
-	return (availablePhysicalDeviceCount);
-}
-
-uint32_t Device::getQueuesFamiliesCount()
-{
-	return (availableQueuesFamiliesCount);
-}
-
-void Device::attachPhysicalDevice(int deviceType)
-{
-	for (int i = 0; i < availablePhysicalDeviceCount && !physicalSelf; ++i)
-		if (isPhysicalDeviceSuitable(pAvailablePhysicalDevices[i], deviceType))
-			physicalSelf = pAvailablePhysicalDevices[i];
+	for (int i = 0; i < size && !physicalSelf; ++i)
+		if (isPhysicalDeviceSuitable(pPhysicalDevices[i], type))
+			physicalSelf = pPhysicalDevices[i];
 	if (!physicalSelf)
 		throw std::runtime_error("Failed to find physical device");
 }
 
-void Device::attachPhysicalDevice(Instance &instance, int deviceType)
-{
-	getPhysicalDevices(instance);
-	attachPhysicalDevice(deviceType);
-}
-
-bool Device::checkCompatibleWithSurface(Surface &surface)
+bool Device::setQueue(Surface &surface, VkQueueFamilyProperties properties, float priority)
 {
 	VkBool32 presentQueueFamilySupport = false;
 
 	getQueuesFamiliesProperties();
 	for (int i = 0; i < availableQueuesFamiliesCount; ++i)
 	{
-		vkGetPhysicalDeviceSurfaceSupportKHR(physicalSelf, i, surface.self, &presentQueueFamilySupport);
+		vkGetPhysicalDeviceSurfaceSupportKHR(physicalSelf, i, surface.getSelf(), &presentQueueFamilySupport);
 		if (presentQueueFamilySupport)
 		{
-			pQueues[VK_QUEUE_PRESENT_BIT].index = i;
+			fillQueueCreateInfo(properties, priority, i);
+			pQueues[properties.queueFlags].index = i;
 			break;
 		}
 	}
-	if (!presentQueueFamilySupport)
+	if (pQueues[properties.queueFlags].index)
 		return (false);
 	return (true);
 }
 
-void Device::setupQueue(int type, float priority, int count)
+bool Device::setQueue(VkQueueFamilyProperties properties, float priority)
 {
 	getQueuesFamiliesProperties();
 	for (int i = 0; i < availableQueuesFamiliesCount; ++i)
-		if (isQueueFamilySuitable(pAvailableQueuesFamilies[i], type, count) || type == VK_QUEUE_PRESENT_BIT)
+		if (isQueueFamilySuitable(pAvailableQueuesFamilies[i], properties))
 		{
-			pQueueFamiliesCreateInfo[queueFamiliesCreateInfoCount].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			pQueueFamiliesCreateInfo[queueFamiliesCreateInfoCount].queueCount = count;
-			pQueueFamiliesCreateInfo[queueFamiliesCreateInfoCount].pQueuePriorities = &priority;
-			pQueueFamiliesCreateInfo[queueFamiliesCreateInfoCount].queueFamilyIndex = i;
-			pQueueFamiliesCreateInfo[queueFamiliesCreateInfoCount].pNext = nullptr;
-			pQueueFamiliesCreateInfo[queueFamiliesCreateInfoCount].flags = 0;
-			if (type != VK_QUEUE_PRESENT_BIT)
-				pQueues[type].index = i;
-			++queueFamiliesCreateInfoCount;
+			fillQueueCreateInfo(properties, priority, i);
+			pQueues[properties.queueFlags].index = i;
 			break;
 		}
-	if (pQueues[type].index < 0)
-		throw std::runtime_error("Failed to setup queue");
+	if (pQueues[properties.queueFlags].index < 0)
+		return (false);
+	return (true);
 }
 
 uint32_t		*Device::requireIndexArray()
@@ -231,17 +173,12 @@ uint32_t		*Device::requireIndexArray()
 void Device::create()
 {
 	assert(physicalSelf);
-	sCreateInfo.enabledLayerCount		= enabledLayerCount;
-	sCreateInfo.ppEnabledLayerNames		= ppEnabledLayerNames;
-	sCreateInfo.enabledExtensionCount	= enabledExtensionCount;
-	sCreateInfo.ppEnabledExtensionNames	= ppEnabledExtensionNames;
-	sCreateInfo.pQueueCreateInfos		= pQueueFamiliesCreateInfo;
-	sCreateInfo.queueCreateInfoCount	= queueFamiliesCreateInfoCount;
 	if ((codeOfError = vkCreateDevice(physicalSelf, &sCreateInfo, nullptr, &self)) != VK_SUCCESS)
 	{
 		std::cout << "Code of error: " << codeOfError << std::endl;
 		throw std::runtime_error("Failed to create logical device");
 	}
+	getQueuesFamilies();
 }
 
 VkDevice Device::operator()()
@@ -254,34 +191,45 @@ VkPhysicalDevice Device::operator!()
 	return (getPhysicalSelf());
 }
 
-bool Device::isPhysicalDeviceSuitable(VkPhysicalDevice device, uint32_t type)
+bool Device::isLayerSuitable(VkLayerProperties sLayer, const char **desiredLayers, uint32_t size)
 {
-	vkGetPhysicalDeviceFeatures(device, &sFeatures);
-	vkGetPhysicalDeviceProperties(device, &sProperties);
-	vkGetPhysicalDeviceMemoryProperties(device, &sMemoryProperties);
-	vkGetPhysicalDeviceFormatProperties(device, (VkFormat)0, nullptr);
-	return (sProperties.deviceType == type);
-}
-
-bool Device::isLayerSuitable(VkLayerProperties sLayer, std::vector<const char *> &desiredLayers)
-{
-	for (int i = 0; i < desiredLayers.size(); ++i)
+	for (int i = 0; i < size; ++i)
 		if (!strcmp(desiredLayers[i], sLayer.layerName))
 			return (true);
 	return (false);
 }
 
-bool Device::isExtensionSuitable(VkExtensionProperties sExtension, std::vector<const char *> &desiredExtensions)
+bool Device::isExtensionSuitable(VkExtensionProperties sExtension, const char **desiredExtensions, uint32_t size)
 {
-	for (int i = 0; i < desiredExtensions.size(); ++i)
+	for (int i = 0; i < size; ++i)
 		if (!strcmp(desiredExtensions[i], sExtension.extensionName))
 			return (true);
 	return (false);
 }
 
-bool Device::isQueueFamilySuitable(VkQueueFamilyProperties queueProperties, uint32_t type, uint32_t count)
+bool Device::isPhysicalDeviceSuitable(VkPhysicalDevice device, uint32_t type)
 {
-	if ((queueProperties.queueFlags & type) && queueProperties.queueCount >= count)
+	vkGetPhysicalDeviceFeatures(device, &sFeatures);
+	vkGetPhysicalDeviceProperties(device, &sProperties);
+	vkGetPhysicalDeviceMemoryProperties(device, &sMemoryProperties);
+	return (sProperties.deviceType == type);
+}
+
+bool Device::isQueueFamilySuitable(VkQueueFamilyProperties queueProperties, VkQueueFamilyProperties properties)
+{
+	if ((queueProperties.queueFlags & properties.queueFlags) && queueProperties.queueCount >= properties.queueCount)
 		return (true);
 	return (false);
+}
+
+void Device::fillQueueCreateInfo(VkQueueFamilyProperties properties, float priority, int index)
+{
+	pQueueFamiliesCreateInfos[queueFamiliesCreateInfoCount].sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+	pQueueFamiliesCreateInfos[queueFamiliesCreateInfoCount].pQueuePriorities = &priority;
+	pQueueFamiliesCreateInfos[queueFamiliesCreateInfoCount].queueFamilyIndex = index;
+	pQueueFamiliesCreateInfos[queueFamiliesCreateInfoCount].queueCount = properties.queueCount;
+	pQueueFamiliesCreateInfos[queueFamiliesCreateInfoCount].pNext = nullptr;
+	pQueueFamiliesCreateInfos[queueFamiliesCreateInfoCount].flags = 0;
+	++queueFamiliesCreateInfoCount;
+	sCreateInfo.queueCreateInfoCount = queueFamiliesCreateInfoCount;
 }

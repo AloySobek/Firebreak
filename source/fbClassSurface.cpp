@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/02 15:58:58 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/08 16:50:30 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/09 20:42:46 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,12 @@ void Surface::setNext(const void *pNext)
 void Surface::setClipped(VkBool32 clipped)
 {
 	sSwapchainCreateInfo.clipped = clipped;
+}
+
+VkSurfaceKHR	Surface::getSelf()
+{
+	assert(self);
+	return (self);
 }
 
 void Surface::setImageCount(uint32_t imagesCount)

@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 19:34:16 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/06 19:25:14 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/09 20:48:43 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,36 +28,26 @@ class Device
 	public:
 		FbQueue_t	pQueues[VK_QUEUE_PROTECTED_BIT];
 
-		Device(const void *pNext);
-		Device(VkDeviceCreateFlags flags = VK_NULL_HANDLE, const void *pNext = nullptr);
+		Device();
 		Device(Device &anotherDevice) { }
 
-		void setupNext(const void *pNext);
-		void setupFlags(VkDeviceCreateFlags flags);
-		void setupLayers(std::vector<const char *> &desiredLayers);
-		void setupExtensions(std::vector<const char *> &desiredExtensions);
+		void setLayers(const char **desiredLayers, uint32_t size);
+		void setExtensions(const char **desiredExtensions, uint32_t size);
 
-		VkDevice					getSelf();
-		VkPhysicalDevice			getPhysicalSelf();
-		VkDeviceCreateFlags			getFlags();
-		const void					*getNext();
-		VkPhysicalDevice			*getPhysicalDevices(Instance &instance);
-		VkPhysicalDeviceFeatures	*getFeatures();
-		VkPhysicalDeviceProperties	*getProperties();
+		VkDevice							getSelf();
+		VkPhysicalDevice					getPhysicalSelf();
+		VkDeviceCreateInfo					*getCreateInfo();
+		VkPhysicalDeviceFeatures			*getFeatures();
+		VkPhysicalDeviceProperties			*getProperties();
 		VkPhysicalDeviceMemoryProperties	*getMemoryProperties();
-		VkLayerProperties			*getLayers();
-		VkExtensionProperties		*getExtensions();
-		VkQueueFamilyProperties		*getQueuesFamiliesProperties();
-		FbQueue_t					*getQueuesFamilies();
-		uint32_t					getLayersAmount();
-		uint32_t					getExtensionsAmount();
-		uint32_t					getPhysicalDevicesAmount();
-		uint32_t					getQueuesFamiliesCount();
+		VkLayerProperties					*getAvailableLayers();
+		VkExtensionProperties				*getAvailableExtensions();
+		VkQueueFamilyProperties				*getQueuesFamiliesProperties();
+		FbQueue_t							*getQueuesFamilies();
 
-		void attachPhysicalDevice(int deviceType);
-		void attachPhysicalDevice(Instance &instance, int deviceType);
-		bool checkCompatibleWithSurface(Surface &surface);
-		void setupQueue(int type, float priority, int count);
+		void attachPhysicalDevice(int type, VkPhysicalDevice *pPhysicalDevices, uint32_t size);
+		bool setQueue(Surface &surface, VkQueueFamilyProperties properties, float priority);
+		bool setQueue(VkQueueFamilyProperties properties, float priority);
 		void create();
 
 		uint32_t	*requireIndexArray();
@@ -74,24 +64,17 @@ class Device
 		VkPhysicalDeviceProperties			sProperties			= {};
 		VkPhysicalDeviceMemoryProperties	sMemoryProperties	= {};
 
-		uint32_t			availablePhysicalDeviceCount = 0;
-		VkPhysicalDevice	*pAvailablePhysicalDevices;
-
-		uint32_t			enabledLayerCount	 = 0;
 		uint32_t			availableLayersCount = 0;
 		VkLayerProperties	*pAvailableLayers;
-		const char			**ppEnabledLayerNames;
 
-		uint32_t				enabledExtensionCount	 = 0;
 		uint32_t				availableExtensionsCount = 0;
 		VkExtensionProperties	*pAvailableExtensions;
-		const char				**ppEnabledExtensionNames;
 
 		uint32_t				availableQueuesFamiliesCount = 0;
 		VkQueueFamilyProperties	*pAvailableQueuesFamilies;
 
 		uint32_t				queueFamiliesCreateInfoCount = 0;
-		VkDeviceQueueCreateInfo	pQueueFamiliesCreateInfo[VK_QUEUE_PROTECTED_BIT];
+		VkDeviceQueueCreateInfo	pQueueFamiliesCreateInfos[VK_QUEUE_PROTECTED_BIT];
 
 		bool retrieveDevices	= false;
 		bool calledLayers		= false;
@@ -101,10 +84,11 @@ class Device
 		bool calledMemory		= false;
 		int32_t codeOfError		= false;
 
-		bool isLayerSuitable(VkLayerProperties sLayer, std::vector<const char *> &layers);
-		bool isExtensionSuitable(VkExtensionProperties sExtensions, std::vector<const char *> &extensions);
+		bool isLayerSuitable(VkLayerProperties sLayer, const char **desiredLayers, uint32_t size);
+		bool isExtensionSuitable(VkExtensionProperties sExtensions, const char **desiredExtensions, uint32_t size);
 		bool isPhysicalDeviceSuitable(VkPhysicalDevice device, uint32_t type);
-		bool isQueueFamilySuitable(VkQueueFamilyProperties queueProperties, uint32_t type, uint32_t count);
+		bool isQueueFamilySuitable(VkQueueFamilyProperties queueProperties, VkQueueFamilyProperties needProperties);
+		void fillQueueCreateInfo(VkQueueFamilyProperties properties, float priority, int index);
 };
 
 #endif
