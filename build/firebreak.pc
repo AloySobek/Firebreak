@@ -1,0 +1,12 @@
+prefix=/Users/vrichese/.brew
+exec_prefix=/Users/vrichese/.brew
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: Firebreak
+Description: Firebreak framework
+Version: 0.1
+
+Requires:
+Libs: -L${libdir} -lfirebreak
+Cflags: -I${includedir}

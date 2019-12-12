@@ -1,0 +1,7 @@
+/Users/vrichese/Workspace/Rus42/MyProjects/WanderingStar/Firebreak/build/CMakeFiles/install/local.dir
+/Users/vrichese/Workspace/Rus42/MyProjects/WanderingStar/Firebreak/build/CMakeFiles/install/strip.dir
+/Users/vrichese/Workspace/Rus42/MyProjects/WanderingStar/Firebreak/build/CMakeFiles/install.dir
+/Users/vrichese/Workspace/Rus42/MyProjects/WanderingStar/Firebreak/build/CMakeFiles/list_install_components.dir
+/Users/vrichese/Workspace/Rus42/MyProjects/WanderingStar/Firebreak/build/CMakeFiles/rebuild_cache.dir
+/Users/vrichese/Workspace/Rus42/MyProjects/WanderingStar/Firebreak/build/CMakeFiles/edit_cache.dir
+/Users/vrichese/Workspace/Rus42/MyProjects/WanderingStar/Firebreak/build/CMakeFiles/firebreak.dir
