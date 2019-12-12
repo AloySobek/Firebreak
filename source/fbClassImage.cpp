@@ -1,32 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   fbClassBuffer.cpp                                  :+:      :+:    :+:   */
+/*   fbClassImage.cpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2019/12/09 20:50:56 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/12 17:55:40 by Rustam           ###   ########.fr       */
+/*   Created: 2019/12/12 17:57:46 by Rustam            #+#    #+#             */
+/*   Updated: 2019/12/12 18:07:42 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "firebreak.hpp"
 
-VkBufferCreateInfo	*Buffer::getCreateInfo()
+VkImage	Image::getSelf()
+{
+	assert(self);
+	return (self);
+}
+
+VkImageCreateInfo	*Image::getCreateInfo()
 {
 	return (&sCreateInfo);
 }
 
-VkAllocationCallbacks	*Buffer::getAllocationInfo()
+VkAllocationCallbacks	*Image::getAllocationInfo()
 {
 	return (&sAllocation);
 }
 
-void Buffer::create(Device &device, int mode)
+void	Image::create(Device &device, int mode)
 {
-	if ((codeOfError = vkCreateBuffer(device.getSelf(), &sCreateInfo, mode ? &sAllocation : nullptr, &self)) != VK_SUCCESS)
+	if ((codeOfError = vkCreateImage(device.getSelf(), &sCreateInfo, mode ? &sAllocation : nullptr, &self)) != VK_SUCCESS)
 	{
-		std::cout << "Code of error: " << codeOfError << "\n";
-		throw std::runtime_error("Failed to create buffer object");
+		std::cout << "Code of error: " << codeOfError << std::endl;
+		throw std::runtime_error("Failed to create image");
 	}
 }
