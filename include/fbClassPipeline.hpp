@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/13 18:43:13 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/13 20:50:32 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/14 16:56:19 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,33 +64,20 @@ class Pipeline
 
 		VkShaderModuleCreateInfo		sShaderCreateInfo		= {};
 		VkPipelineShaderStageCreateInfo	sShaderStageCreateInfo	= {};
-
 		VkShaderModule					pShaders[FB_SHADERS_AMOUNT];
-		VkPipelineShaderStageCreateInfo	pShaderStageCreateInfos[FB_SHADERS_AMOUNT];
-
+		VkPipelineShaderStageCreateInfo			pShaderStageCreateInfos[FB_SHADERS_AMOUNT];
 		VkPipelineInputAssemblyStateCreateInfo	sAssemblyStateCreateInfo	= {};
-
 		VkPipelineVertexInputStateCreateInfo	sVertexInputStateCreateInfo	= {};
-
-		VkViewport	sViewport = {};
-
-		VkRect2D	sScissor = {};
-
-		VkPipelineViewportStateCreateInfo		sViewportStateCreateInfo = {};
-
+		VkPipelineViewportStateCreateInfo		sViewportStateCreateInfo		= {};
 		VkPipelineRasterizationStateCreateInfo	sRasterizationStateCreateInfo	= {};
-
-		VkPipelineMultisampleStateCreateInfo	sMultisampeStateCreateInfo	= {};
-
+		VkPipelineMultisampleStateCreateInfo	sMultisampeStateCreateInfo		= {};
 		VkPipelineDepthStencilStateCreateInfo	sDepthStencilStateCreateInfo	= {};
-
-		VkPipelineColorBlendAttachmentState		sColorBlendAttachment = {};
-
-		VkPipelineColorBlendStateCreateInfo		sColorBlendStateCreateInfo	= {};
-
-		VkPipelineDynamicStateCreateInfo		sDynamicStateCreateInfo	= {};
-
-		VkPipelineLayoutCreateInfo				sLayoutCreateInfo = {};
+		VkPipelineColorBlendAttachmentState		sColorBlendAttachment			= {};
+		VkPipelineColorBlendStateCreateInfo		sColorBlendStateCreateInfo		= {};
+		VkPipelineDynamicStateCreateInfo		sDynamicStateCreateInfo			= {};
+		VkPipelineLayoutCreateInfo				sLayoutCreateInfo				= {};
+		VkViewport	sViewport	= {};
+		VkRect2D	sScissor	= {};
 
 		int32_t		codeOfError		= false;
 		uint32_t	shadersCount	= 0;
