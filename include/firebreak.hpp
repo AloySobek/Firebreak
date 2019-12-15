@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/18 20:43:53 by vrichese          #+#    #+#             */
-/*   Updated: 2019/12/13 18:57:34 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/15 17:39:35 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,5 +59,6 @@ class Device;
 # include "fbClassBuffer.hpp"
 # include "fbClassImage.hpp"
 # include "fbClassPipeline.hpp"
+# include "fbClassSemaphore.hpp"
 
 #endif

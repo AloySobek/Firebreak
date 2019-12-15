@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 19:34:16 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/14 20:03:19 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/15 17:50:37 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,22 @@ class Device
 		bool calledMemory		= false;
 		int32_t codeOfError		= false;
 
+		bool isLayerSuitable(VkLayerProperties sLayer, const char **desiredLayers, uint32_t size);
+		bool isExtensionSuitable(VkExtensionProperties sExtensions, const char **desiredExtensions, uint32_t size);
+		bool isPhysicalDeviceSuitable(VkPhysicalDevice device, uint32_t type);
+		bool isQueueFamilySuitable(VkQueueFamilyProperties queueProperties, VkQueueFamilyProperties needProperties);
+		void fillQueueCreateInfo(VkQueueFamilyProperties properties, float priority, int index);
+};
+
+class Device2 : public Device
+{
+	public:
+		void setLayers(const char **desiredLayers, uint32_t size);
+		void setExtensions(const char **desiredExtensions, uint32_t size);
+		bool setQueue(Surface &surface, VkQueueFamilyProperties properties, float priority);
+		bool setQueue(VkQueueFamilyProperties properties, float priority);
+
+	private:
 		bool isLayerSuitable(VkLayerProperties sLayer, const char **desiredLayers, uint32_t size);
 		bool isExtensionSuitable(VkExtensionProperties sExtensions, const char **desiredExtensions, uint32_t size);
 		bool isPhysicalDeviceSuitable(VkPhysicalDevice device, uint32_t type);

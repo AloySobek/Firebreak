@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 16:22:46 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/12 18:58:15 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/15 17:22:06 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,25 +21,18 @@ class Instance
 		Instance();
 		Instance(Instance &anotherInstance) { };
 
-		void setLayers(const char **desiredLayers, uint32_t size);
-		void setExtensions(const char **desiredExtensions, uint32_t size);
-
 		VkInstance				getSelf();
 		VkApplicationInfo		*getAppInfo();
 		VkInstanceCreateInfo	*getCreateInfo();
 		VkAllocationCallbacks	*getAllocationInfo();
-		VkLayerProperties		*getAvailableLayers();
-		VkLayerProperties		*getAvailableLayers(uint32_t *size);
-		VkExtensionProperties	*getAvailableExtensions();
-		VkExtensionProperties	*getAvailableExtensions(uint32_t *size);
-		VkPhysicalDevice		*getPhysicalDevices();
-		VkPhysicalDevice		*getPhysicalDevices(uint32_t *size);
+		VkLayerProperties		*getAvailableLayers(uint32_t *size = nullptr);
+		VkExtensionProperties	*getAvailableExtensions(uint32_t *size = nullptr);
+		VkPhysicalDevice		*getPhysicalDevices(uint32_t *size = nullptr);
 
 		void create(int mode = VK_NULL_HANDLE);
 
-		VkInstance operator()(void);
-
-		~Instance() { }
+		~Instance();
+		friend class Instance2;
 
 	private:
 		VkInstance				self				= VK_NULL_HANDLE;
@@ -47,19 +40,25 @@ class Instance
 		VkApplicationInfo		sApplicationInfo	= {};
 		VkAllocationCallbacks	sAllocation			= {};
 
-		VkPhysicalDevice		*pAvailablePhysicalDevices;
-		VkLayerProperties		*pAvailableLayers;
-		VkExtensionProperties	*pAvailableExtensions;
+		VkLayerProperties		*pAvailableLayers			= nullptr;
+		VkExtensionProperties	*pAvailableExtensions		= nullptr;
+		VkPhysicalDevice		*pAvailablePhysicalDevices	= nullptr;
 
-		uint32_t availablePhysicalDeviceCount	= 0;
 		uint32_t availableLayersCount			= 0;
 		uint32_t availableExtensionsCount		= 0;
+		uint32_t availablePhysicalDeviceCount	= 0;
 
-		bool	calledLayers	 	= false;
-		bool	calledExtensions 	= false;
-		bool	calledDevices		= false;
-		int32_t	codeOfError			= false;
+		int32_t	codeOfError	= false;
+};
 
+class Instance2 : public Instance
+{
+	public:
+		void	setLayers(const char **desiredLayers, uint32_t size);
+		void	setExtensions(const char **desiredExtensions, uint32_t size);
+		void	setAppInfo(const char *pName, uint32_t appVersion, const char *pEngineName, uint32_t engineVersion, uint32_t vulkanVersion = VK_VERSION_1_0);
+
+	public:
 		bool	isLayerSuitable(VkLayerProperties sLayer, const char **desiredLayers, uint32_t size);
 		bool	isExtensionSuitable(VkExtensionProperties sExtension, const char **desiredExtensions, uint32_t size);
 };

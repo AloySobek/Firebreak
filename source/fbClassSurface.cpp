@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/02 15:58:58 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/12 18:58:14 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/15 17:13:10 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,7 +184,7 @@ void Surface::checkSwapChainSupporting(Device &device)
 void Surface::create(Instance &instance)
 {
 	assert(pWindow);
-	if ((codeOfError = glfwCreateWindowSurface(instance(), (GLFWwindow *)pWindow, nullptr, &self)) != VK_SUCCESS)
+	if ((codeOfError = glfwCreateWindowSurface(instance.getSelf(), (GLFWwindow *)pWindow, nullptr, &self)) != VK_SUCCESS)
 	{
 		std::cout << "Code of error: " << codeOfError << std::endl;
 		throw std::runtime_error("Failed to create window surface");

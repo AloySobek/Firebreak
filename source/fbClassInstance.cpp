@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 13:35:59 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/09 20:47:37 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/15 17:19:26 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,15 @@
 
 Instance::Instance()
 {
-	sCreateInfo.pApplicationInfo = &sApplicationInfo;
-	sApplicationInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-	sCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+	sCreateInfo.sType				= VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+	sCreateInfo.pApplicationInfo	= &sApplicationInfo;
+	sApplicationInfo.sType			= VK_STRUCTURE_TYPE_APPLICATION_INFO;
+}
+
+VkInstance Instance::getSelf(void)
+{
+	assert(self);
+	return (self);
 }
 
 VkInstanceCreateInfo	*Instance::getCreateInfo()
@@ -34,83 +40,42 @@ VkAllocationCallbacks	*Instance::getAllocationInfo()
 	return (&sAllocation);
 }
 
-VkPhysicalDevice	*Instance::getPhysicalDevices()
+VkLayerProperties	*Instance::getAvailableLayers(uint32_t *size)
 {
-	if (!calledDevices)
-	{
-		vkEnumeratePhysicalDevices(self, &availablePhysicalDeviceCount, nullptr);
-		pAvailablePhysicalDevices = new VkPhysicalDevice[availablePhysicalDeviceCount];
-		vkEnumeratePhysicalDevices(self, &availablePhysicalDeviceCount, pAvailablePhysicalDevices);
-		calledDevices = true;
-	}
-	return (pAvailablePhysicalDevices);
-}
-
-VkPhysicalDevice	*Instance::getPhysicalDevices(uint32_t *size)
-{
-	getPhysicalDevices();
-	*size = availablePhysicalDeviceCount;
-	return (pAvailablePhysicalDevices);
-}
-
-void Instance::setLayers(const char **desiredLayers, uint32_t size)
-{
-	getAvailableLayers();
-	for (int i = 0; i < availableLayersCount; ++i)
-		if (isLayerSuitable(pAvailableLayers[i], desiredLayers, size))
-			((char **)sCreateInfo.ppEnabledLayerNames)[sCreateInfo.enabledLayerCount++] = pAvailableLayers[i].layerName;
-}
-
-void Instance::setExtensions(const char **desiredExtensions, uint32_t size)
-{
-	getAvailableExtensions();
-	for (int i = 0; i < availableExtensionsCount; ++i)
-		if (isExtensionSuitable(pAvailableExtensions[i], desiredExtensions, size))
-			((char **)sCreateInfo.ppEnabledExtensionNames)[sCreateInfo.enabledExtensionCount++] = pAvailableExtensions[i].extensionName;
-}
-
-VkInstance Instance::getSelf(void)
-{
-	assert(self);
-	return (self);
-}
-
-VkLayerProperties	*Instance::getAvailableLayers()
-{
-	if (!calledLayers)
+	if (!pAvailableLayers)
 	{
 		vkEnumerateInstanceLayerProperties(&availableLayersCount, nullptr);
 		pAvailableLayers = new VkLayerProperties[availableLayersCount];
 		sCreateInfo.ppEnabledLayerNames = new const char *[availableLayersCount];
 		vkEnumerateInstanceLayerProperties(&availableLayersCount, pAvailableLayers);
-		calledLayers = true;
 	}
+	size ? *size = availableLayersCount : false;
 	return (pAvailableLayers);
 }
 
-VkLayerProperties	*Instance::getAvailableLayers(uint32_t *size)
+VkPhysicalDevice	*Instance::getPhysicalDevices(uint32_t *size)
 {
-	*size = availableLayersCount;
-	return (getAvailableLayers());
+	if (!pAvailablePhysicalDevices)
+	{
+		vkEnumeratePhysicalDevices(self, &availablePhysicalDeviceCount, nullptr);
+		pAvailablePhysicalDevices = new VkPhysicalDevice[availablePhysicalDeviceCount];
+		vkEnumeratePhysicalDevices(self, &availablePhysicalDeviceCount, pAvailablePhysicalDevices);
+	}
+	size ? *size = availablePhysicalDeviceCount : false;
+	return (pAvailablePhysicalDevices);
 }
 
-VkExtensionProperties	*Instance::getAvailableExtensions()
+VkExtensionProperties	*Instance::getAvailableExtensions(uint32_t *size)
 {
-	if (!calledExtensions)
+	if (!pAvailableExtensions)
 	{
 		vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionsCount, nullptr);
 		pAvailableExtensions = new VkExtensionProperties[availableExtensionsCount];
 		sCreateInfo.ppEnabledExtensionNames = new const char *[availableExtensionsCount];
 		vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionsCount, pAvailableExtensions);
-		calledExtensions = true;
 	}
+	size ? *size = availableExtensionsCount : false;
 	return (pAvailableExtensions);
-}
-
-VkExtensionProperties	*Instance::getAvailableExtensions(uint32_t *size)
-{
-	*size = availableExtensionsCount;
-	return (getAvailableExtensions());
 }
 
 void Instance::create(int mode)
@@ -122,12 +87,54 @@ void Instance::create(int mode)
 	}
 }
 
-VkInstance Instance::operator()(void)
+Instance::~Instance()
 {
-	return (getSelf());
+	if (pAvailableLayers)
+	{
+		delete[] pAvailableLayers;
+		availableLayersCount	= 0;
+		pAvailableLayers		= nullptr;
+	}
+	if (pAvailableExtensions)
+	{
+		delete[] pAvailableExtensions;
+		availableExtensionsCount	= 0;
+		pAvailableExtensions		= nullptr;
+	}
+	if (pAvailablePhysicalDevices)
+	{
+		delete[] pAvailablePhysicalDevices;
+		availablePhysicalDeviceCount	= 0;
+		pAvailablePhysicalDevices		= nullptr;
+	}
 }
 
-bool Instance::isLayerSuitable(VkLayerProperties sLayer, const char **desiredLayers, uint32_t size)
+void Instance2::setLayers(const char **desiredLayers, uint32_t size)
+{
+	getAvailableLayers();
+	for (int i = 0; i < availableLayersCount; ++i)
+		if (isLayerSuitable(pAvailableLayers[i], desiredLayers, size))
+			((char **)sCreateInfo.ppEnabledLayerNames)[sCreateInfo.enabledLayerCount++] = pAvailableLayers[i].layerName;
+}
+
+void Instance2::setExtensions(const char **desiredExtensions, uint32_t size)
+{
+	getAvailableExtensions();
+	for (int i = 0; i < availableExtensionsCount; ++i)
+		if (isExtensionSuitable(pAvailableExtensions[i], desiredExtensions, size))
+			((char **)sCreateInfo.ppEnabledExtensionNames)[sCreateInfo.enabledExtensionCount++] = pAvailableExtensions[i].extensionName;
+}
+
+void Instance2::setAppInfo(const char *pName, uint32_t appVersion, const char *pEngineName, uint32_t engineVersion, uint32_t vulkanVersion)
+{
+	sApplicationInfo.pApplicationName	= pName;
+	sApplicationInfo.applicationVersion	= appVersion;
+	sApplicationInfo.pEngineName		= pEngineName;
+	sApplicationInfo.engineVersion		= engineVersion;
+	sApplicationInfo.apiVersion			= vulkanVersion;
+}
+
+bool Instance2::isLayerSuitable(VkLayerProperties sLayer, const char **desiredLayers, uint32_t size)
 {
 	for (int i = 0; i < size; ++i)
 		if (!strcmp(desiredLayers[i], sLayer.layerName))
@@ -135,7 +142,7 @@ bool Instance::isLayerSuitable(VkLayerProperties sLayer, const char **desiredLay
 	return (false);
 }
 
-bool Instance::isExtensionSuitable(VkExtensionProperties sExtension, const char **desiredExtensions, uint32_t size)
+bool Instance2::isExtensionSuitable(VkExtensionProperties sExtension, const char **desiredExtensions, uint32_t size)
 {
 	for (int i = 0; i < size; ++i)
 		if (!strcmp(desiredExtensions[i], sExtension.extensionName))
