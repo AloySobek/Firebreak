@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/12 17:57:46 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/12 18:07:42 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/17 14:23:19 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 VkImage	Image::getSelf()
 {
-	assert(self);
 	return (self);
 }
 
@@ -28,9 +27,9 @@ VkAllocationCallbacks	*Image::getAllocationInfo()
 	return (&sAllocation);
 }
 
-void	Image::create(Device &device, int mode)
+void	Image::create(Device &device)
 {
-	if ((codeOfError = vkCreateImage(device.getSelf(), &sCreateInfo, mode ? &sAllocation : nullptr, &self)) != VK_SUCCESS)
+	if ((codeOfError = vkCreateImage(device.getSelf(), &sCreateInfo, sAllocation.pfnAllocation ? &sAllocation : nullptr, &self)) != VK_SUCCESS)
 	{
 		std::cout << "Code of error: " << codeOfError << std::endl;
 		throw std::runtime_error("Failed to create image");

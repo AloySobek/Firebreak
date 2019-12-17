@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/12 17:57:53 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/12 18:06:53 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/17 14:22:56 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ class Image
 		VkImageCreateInfo		*getCreateInfo();
 		VkAllocationCallbacks	*getAllocationInfo();
 
-		void create(Device &device, int mode = VK_NULL_HANDLE);
+		void create(Device &device);
 
 		~Image() { }
 

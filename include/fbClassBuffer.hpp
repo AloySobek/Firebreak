@@ -6,14 +6,21 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/09 20:51:03 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/15 14:48:44 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/17 19:30:37 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FB_CLASS_BUFFER_HPP
 # define FB_CLASS_BUFFER_HPP
 
+#ifdef SAFEMODE
+# define THROW_EXCEPTION(x)	if (codeOfError != VK_SUCCESS) throw std::runtime_error(x);
+#else
+# define THROW_EXCEPTION(x)
+#endif
+
 #include "firebreak.hpp"
+
 
 class Buffer
 {
@@ -25,13 +32,20 @@ class Buffer
 		VkBufferCreateInfo		*getCreateInfo();
 		VkAllocationCallbacks	*getAllocationInfo();
 		VkMemoryRequirements	*getMemoryRequirements();
-		VkMemoryAllocateInfo	*getMemoryAllocaionInfo();
+		VkMemoryAllocateInfo	*getMemoryAllocateInfo();
 		VkDeviceMemory			*getDeviceMemory();
+		VkMappedMemoryRange		*getMappedMemoryRange();
+		void					*getMemoryPtr();
+		int32_t					getErrorCode();
+		VkDeviceSize			getSizeDeviceMemory(Device &device);
 
-		void create(Device &device, int mode = VK_NULL_HANDLE);
-		void allocate(Device &device, int mode = VK_NULL_HANDLE);
+		void create(Device &device);
+		void allocate(Device &device);
 		void bind(Device &device);
-		void insertData(Device &device, void *pData);
+		void mapMemory(Device &device, uint32_t offset = 0, uint32_t size = 0);
+		void unmapMemory(Device &device);
+		void discardDeviceCache(Device &device, uint32_t memoryRangeCount);
+		void refreshDeviceCache(Device &device, uint32_t memoryRangeCount);
 
 		~Buffer() { }
 
@@ -40,8 +54,10 @@ class Buffer
 		VkBufferCreateInfo		sCreateInfo			= {};
 		VkAllocationCallbacks	sAllocation			= {};
 		VkMemoryRequirements	sMemoryRequirements = {};
-		VkMemoryAllocateInfo	sMemoryAllocation	= {};
+		VkMemoryAllocateInfo	sMemoryAllocateInfo	= {};
 		VkDeviceMemory			deviceMemory		= nullptr;
+		VkDeviceSize			sizeDeviceMemory	= -1;
+		VkMappedMemoryRange		sMappedMemoryRange	= {};
 		void					*pData				= nullptr;
 
 		int32_t	codeOfError = false;

@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 13:35:59 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/15 17:19:26 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/16 17:13:58 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,9 +19,8 @@ Instance::Instance()
 	sApplicationInfo.sType			= VK_STRUCTURE_TYPE_APPLICATION_INFO;
 }
 
-VkInstance Instance::getSelf(void)
+VkInstance	Instance::getSelf(void)
 {
-	assert(self);
 	return (self);
 }
 
@@ -40,54 +39,63 @@ VkAllocationCallbacks	*Instance::getAllocationInfo()
 	return (&sAllocation);
 }
 
-VkLayerProperties	*Instance::getAvailableLayers(uint32_t *size)
+VkLayerProperties	*Instance::getLayers(uint32_t *size)
 {
 	if (!pAvailableLayers)
 	{
-		vkEnumerateInstanceLayerProperties(&availableLayersCount, nullptr);
+		if ((codeOfError = vkEnumerateInstanceLayerProperties(&availableLayersCount, nullptr)) != VK_SUCCESS)
+			throw std::runtime_error("Failed to enumerate instance layer properties");
 		pAvailableLayers = new VkLayerProperties[availableLayersCount];
 		sCreateInfo.ppEnabledLayerNames = new const char *[availableLayersCount];
-		vkEnumerateInstanceLayerProperties(&availableLayersCount, pAvailableLayers);
+		if ((codeOfError = vkEnumerateInstanceLayerProperties(&availableLayersCount, pAvailableLayers)) != VK_SUCCESS)
+			throw std::runtime_error("Failed to enumerate instance layer properties");
 	}
 	size ? *size = availableLayersCount : false;
 	return (pAvailableLayers);
+}
+
+VkExtensionProperties	*Instance::getExtensions(uint32_t *size)
+{
+	if (!pAvailableExtensions)
+	{
+		if ((codeOfError = vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionsCount, nullptr)) != VK_SUCCESS)
+			throw std::runtime_error("Failed to enumerate instance extension properties");
+		pAvailableExtensions = new VkExtensionProperties[availableExtensionsCount];
+		sCreateInfo.ppEnabledExtensionNames = new const char *[availableExtensionsCount];
+		if ((codeOfError = vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionsCount, pAvailableExtensions)) != VK_SUCCESS)
+			throw std::runtime_error("Failed to enumerate instance extension properties");
+	}
+	size ? *size = availableExtensionsCount : false;
+	return (pAvailableExtensions);
 }
 
 VkPhysicalDevice	*Instance::getPhysicalDevices(uint32_t *size)
 {
 	if (!pAvailablePhysicalDevices)
 	{
-		vkEnumeratePhysicalDevices(self, &availablePhysicalDeviceCount, nullptr);
+		if ((codeOfError = vkEnumeratePhysicalDevices(self, &availablePhysicalDeviceCount, nullptr)) != VK_SUCCESS)
+			throw std::runtime_error("Failed to enumerate physical devices");
 		pAvailablePhysicalDevices = new VkPhysicalDevice[availablePhysicalDeviceCount];
-		vkEnumeratePhysicalDevices(self, &availablePhysicalDeviceCount, pAvailablePhysicalDevices);
+		if ((codeOfError = vkEnumeratePhysicalDevices(self, &availablePhysicalDeviceCount, pAvailablePhysicalDevices)) != VK_SUCCESS)
+			throw std::runtime_error("Failed to enumerate physical devices");
 	}
 	size ? *size = availablePhysicalDeviceCount : false;
 	return (pAvailablePhysicalDevices);
 }
 
-VkExtensionProperties	*Instance::getAvailableExtensions(uint32_t *size)
+int32_t	Instance::getErrorCode()
 {
-	if (!pAvailableExtensions)
-	{
-		vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionsCount, nullptr);
-		pAvailableExtensions = new VkExtensionProperties[availableExtensionsCount];
-		sCreateInfo.ppEnabledExtensionNames = new const char *[availableExtensionsCount];
-		vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionsCount, pAvailableExtensions);
-	}
-	size ? *size = availableExtensionsCount : false;
-	return (pAvailableExtensions);
+	return (codeOfError);
 }
 
-void Instance::create(int mode)
+void Instance::create()
 {
-	if ((codeOfError = vkCreateInstance(&sCreateInfo, mode ? &sAllocation : nullptr, &self)) != VK_SUCCESS)
-	{
-		std::cout << "Code of error: " << codeOfError << std::endl;
+	if ((codeOfError = vkCreateInstance(&sCreateInfo, sAllocation.pfnAllocation ? &sAllocation : nullptr, &self)) != VK_SUCCESS)
 		throw std::runtime_error("Failed to create instance");
-	}
+	clear();
 }
 
-Instance::~Instance()
+void Instance::clear(uint32_t mode)
 {
 	if (pAvailableLayers)
 	{
@@ -107,11 +115,21 @@ Instance::~Instance()
 		availablePhysicalDeviceCount	= 0;
 		pAvailablePhysicalDevices		= nullptr;
 	}
+	if (self && (mode & FINISH_HIM))
+	{
+		vkDestroyInstance(self, sAllocation.pfnFree ? &sAllocation : nullptr);
+		self = VK_NULL_HANDLE;
+	}
+}
+
+Instance::~Instance()
+{
+	clear(FINISH_HIM);
 }
 
 void Instance2::setLayers(const char **desiredLayers, uint32_t size)
 {
-	getAvailableLayers();
+	safeCall(getLayers);
 	for (int i = 0; i < availableLayersCount; ++i)
 		if (isLayerSuitable(pAvailableLayers[i], desiredLayers, size))
 			((char **)sCreateInfo.ppEnabledLayerNames)[sCreateInfo.enabledLayerCount++] = pAvailableLayers[i].layerName;
@@ -119,7 +137,7 @@ void Instance2::setLayers(const char **desiredLayers, uint32_t size)
 
 void Instance2::setExtensions(const char **desiredExtensions, uint32_t size)
 {
-	getAvailableExtensions();
+	safeCall(getExtensions);
 	for (int i = 0; i < availableExtensionsCount; ++i)
 		if (isExtensionSuitable(pAvailableExtensions[i], desiredExtensions, size))
 			((char **)sCreateInfo.ppEnabledExtensionNames)[sCreateInfo.enabledExtensionCount++] = pAvailableExtensions[i].extensionName;

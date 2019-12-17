@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/18 20:43:53 by vrichese          #+#    #+#             */
-/*   Updated: 2019/12/15 17:39:35 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/17 14:23:33 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,14 @@
 
 # define WIDTH	1920
 # define HEIGHT	1080
+# define SAFEMODE
+/*
+**	Mode bits
+*/
+# define FINISH_HIM			0x01
+/*
+**
+*/
 
 # define APPLE	1
 # define WIN32	2
@@ -50,10 +58,9 @@ class Device;
 # include <algorithm>
 # include <cassert>
 # include "/usr/local/include/vulkan/vulkan.h"
-# include "/Users/vrichese/Workspace/Rus42/MyProjects/WanderingStar/include/glfw3.h"
 
-# include "fbClassSurface.hpp"
 # include "fbClassDevice.hpp"
+# include "fbClassSurface.hpp"
 # include "fbClassInstance.hpp"
 # include "fbClassRender.hpp"
 # include "fbClassBuffer.hpp"

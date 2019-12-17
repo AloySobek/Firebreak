@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/09 20:50:56 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/15 14:50:04 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/17 19:44:22 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,12 @@
 
 Buffer::Buffer()
 {
-	sCreateInfo.sType		= VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	sMemoryAllocation.sType	= VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	sCreateInfo.sType			= VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+	sMemoryAllocateInfo.sType	= VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 }
 
 VkBuffer	Buffer::getSelf()
 {
-	assert(self);
 	return (self);
 }
 
@@ -39,9 +38,9 @@ VkMemoryRequirements	*Buffer::getMemoryRequirements()
 	return (&sMemoryRequirements);
 }
 
-VkMemoryAllocateInfo	*Buffer::getMemoryAllocaionInfo()
+VkMemoryAllocateInfo	*Buffer::getMemoryAllocateInfo()
 {
-	return (&sMemoryAllocation);
+	return (&sMemoryAllocateInfo);
 }
 
 VkDeviceMemory	*Buffer::getDeviceMemory()
@@ -49,42 +48,70 @@ VkDeviceMemory	*Buffer::getDeviceMemory()
 	return (&deviceMemory);
 }
 
-void Buffer::create(Device &device, int mode)
+VkMappedMemoryRange	*Buffer::getMappedMemoryRange()
 {
-	if ((codeOfError = vkCreateBuffer(device.getSelf(), &sCreateInfo, mode ? &sAllocation : nullptr, &self)) != VK_SUCCESS)
-	{
-		std::cout << "Code of error: " << codeOfError << "\n";
-		throw std::runtime_error("Failed to create buffer object");
-	}
+	return (&sMappedMemoryRange);
+}
+
+void	*Buffer::getMemoryPtr()
+{
+	return (pData);
+}
+
+int32_t		Buffer::getErrorCode()
+{
+	return (codeOfError);
+}
+
+VkDeviceSize	Buffer::getSizeDeviceMemory(Device &device)
+{
+	if (sizeDeviceMemory == -1)
+		vkGetDeviceMemoryCommitment(device.getSelf(), deviceMemory, &sizeDeviceMemory);
+	return (sizeDeviceMemory);
+}
+
+void Buffer::create(Device &device)
+{
+	codeOfError = vkCreateBuffer(device.getSelf(), &sCreateInfo, sAllocation.pfnAllocation ? &sAllocation : nullptr, &self);
+	THROW_EXCEPTION("Failed to create buffer object");
 	vkGetBufferMemoryRequirements(device.getSelf(), self, &sMemoryRequirements);
 }
 
-void Buffer::allocate(Device &device, int mode)
+void Buffer::allocate(Device &device)
 {
-	if ((codeOfError = vkAllocateMemory(device.getSelf(), &sMemoryAllocation, mode ? &sAllocation : nullptr, &deviceMemory)) != VK_SUCCESS)
-	{
-		std::cout << "Code of error: " << codeOfError << std::endl;
-		throw std::runtime_error("Failed to allocate memory");
-	}
+	codeOfError = vkAllocateMemory(device.getSelf(), &sMemoryAllocateInfo, sAllocation.pfnAllocation ? &sAllocation : nullptr, &deviceMemory);
+	THROW_EXCEPTION("Failed to allocate memory");
 }
 
 void Buffer::bind(Device &device)
 {
-	assert(self && deviceMemory);
-	if ((codeOfError = vkBindBufferMemory(device.getSelf(), self, deviceMemory, 0)) != VK_SUCCESS)
+	codeOfError = vkBindBufferMemory(device.getSelf(), self, deviceMemory, 0);
+	THROW_EXCEPTION("Failed to bind memory");
+}
+
+void Buffer::mapMemory(Device &device, uint32_t offset, uint32_t size)
+{
+	if (!pData)
 	{
-		std::cout << "Code of error: " << codeOfError << std::endl;
-		throw std::runtime_error("Failed to bind memory");
+		codeOfError = vkMapMemory(device.getSelf(), deviceMemory, 0, size ? size : sCreateInfo.size, 0, &this->pData);
+		THROW_EXCEPTION("Failed to map memory");
 	}
 }
 
-void Buffer::insertData(Device &device, void *pData)
+void Buffer::unmapMemory(Device &device)
 {
-	if ((codeOfError = vkMapMemory(device.getSelf(), deviceMemory, 0, sCreateInfo.size, 0, &this->pData)) != VK_SUCCESS)
-	{
-		std::cout << "Code of error: " << codeOfError << std::endl;
-		throw std::runtime_error("Failed to map memory");
-	}
-	memcpy(this->pData, pData, (size_t)sCreateInfo.size);
 	vkUnmapMemory(device.getSelf(), deviceMemory);
+	pData = nullptr;
+}
+
+void Buffer::discardDeviceCache(Device &device, uint32_t memoryRangeCount)
+{
+	codeOfError = vkFlushMappedMemoryRanges(device.getSelf(), memoryRangeCount, &sMappedMemoryRange);
+	THROW_EXCEPTION("Failed to discard device cache");
+}
+
+void Buffer::refreshDeviceCache(Device &device, uint32_t memoryRangeCount)
+{
+	codeOfError = vkInvalidateMappedMemoryRanges(device.getSelf(), memoryRangeCount, &sMappedMemoryRange);
+	THROW_EXCEPTION("Failed to refresh device cache");
 }
