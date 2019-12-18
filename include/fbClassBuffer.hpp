@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/09 20:51:03 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/17 19:30:37 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/18 15:41:01 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ class Buffer
 {
 	public:
 		Buffer();
+		explicit Buffer(std::initializer_list<int> initList);
 		Buffer(Buffer &anotherBuffer);
 
 		VkBuffer				getSelf();

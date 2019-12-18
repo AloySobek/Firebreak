@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 19:34:16 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/16 17:48:55 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/18 15:48:16 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,11 +56,9 @@ class Device
 		void retrieveQueues();
 		void clear(int mode = VK_NULL_HANDLE);
 
-		friend class Device2;
-
 		~Device();
 
-	private:
+	protected:
 		VkDevice				self			= VK_NULL_HANDLE;
 		VkPhysicalDevice		physicalSelf	= VK_NULL_HANDLE;
 		VkDeviceCreateInfo		sCreateInfo		= {};
@@ -85,6 +83,7 @@ class Device
 class Device2 : public Device
 {
 	public:
+		Device2() : Device() { }
 		void setLayers(const char **desiredLayers, uint32_t size);
 		void setExtensions(const char **desiredExtensions, uint32_t size);
 

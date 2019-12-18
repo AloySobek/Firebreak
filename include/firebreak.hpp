@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/18 20:43:53 by vrichese          #+#    #+#             */
-/*   Updated: 2019/12/17 14:23:33 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/18 14:44:21 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,6 +57,7 @@ class Device;
 # include <vector>
 # include <algorithm>
 # include <cassert>
+# include <initializer_list>
 # include "/usr/local/include/vulkan/vulkan.h"
 
 # include "fbClassDevice.hpp"
