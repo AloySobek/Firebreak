@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/19 17:01:23 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/19 17:50:28 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/20 17:13:05 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ class Queue
 		void endCommandBuffer		(uint32_t bufferIndex);
 		void resetCommandBuffer		(uint32_t bufferIndex, VkCommandBufferResetFlags flags);
 		void resetCommandPool		(Device &device, VkCommandPoolResetFlags flags);
-		void submitTasks			()
+		void submitTasks			();
 
 	private:
 		VkQueue						self						= VK_NULL_HANDLE;
