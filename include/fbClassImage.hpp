@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/12 17:57:53 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/17 14:22:56 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/23 18:42:58 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 class Image
 {
 	public:
-		VkImage		self = VK_NULL_HANDLE;
 
 		Image() { }
 		Image(Image &anotherImage) { }
@@ -26,16 +25,35 @@ class Image
 		VkImage					getSelf();
 		VkImageCreateInfo		*getCreateInfo();
 		VkAllocationCallbacks	*getAllocationInfo();
+		VkImageViewCreateInfo	*getImageViewCreateInfo();
+		VkImageSubresource		*getImageSubresource(Device &device);
+		VkSubresourceLayout		*getImageSubresourceLayout(Device &device);
+		VkMemoryRequirements	*getMemoryRequirements(Device &device);
 
-		void create(Device &device);
+		void create			(Device &device);
+		void createView		(Device &device);
+		void destroy		(Device &device);
+		void destroyView	(Device &device, uint32_t index);
+		void destroyViews	(Device &device);
 
 		~Image() { }
 
-	private:
-		VkImageCreateInfo		sCreateInfo	= {};
-		VkAllocationCallbacks	sAllocation	= {};
+	protected:
+		VkImage					self					= VK_NULL_HANDLE;
+		VkImageCreateInfo		sCreateInfo				= {};
+		VkImageSubresource		sImageSubresource		= {};
+		VkSubresourceLayout		sImageSubresourceLayout	= {};
+		VkImageViewCreateInfo	sImageViewCreateInfo	= {};
+		VkMemoryRequirements	sMemoryRequirements		= {};
+		VkAllocationCallbacks	sAllocation				= {};
 
-		int32_t		codeOfError;
+		VkImageView	*pViews = nullptr;
+
+		uint32_t viewCount = 0;
+
+		int32_t codeOfError = false;
+
+		bool	subresourceChecked = false;
 };
 
 #endif

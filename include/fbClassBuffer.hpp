@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/09 20:51:03 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/18 15:41:01 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/23 18:43:20 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,6 @@
 #endif
 
 #include "firebreak.hpp"
-
 
 class Buffer
 {
@@ -41,6 +40,7 @@ class Buffer
 		VkDeviceSize			getSizeDeviceMemory(Device &device);
 
 		void create(Device &device);
+		void createView(Device &device);
 		void allocate(Device &device);
 		void bind(Device &device);
 		void mapMemory(Device &device, uint32_t offset = 0, uint32_t size = 0);
@@ -53,12 +53,15 @@ class Buffer
 	private:
 		VkBuffer				self				= VK_NULL_HANDLE;
 		VkBufferCreateInfo		sCreateInfo			= {};
+		VkBufferViewCreateInfo	sViewCreateInfo		= {};
 		VkAllocationCallbacks	sAllocation			= {};
 		VkMemoryRequirements	sMemoryRequirements = {};
 		VkMemoryAllocateInfo	sMemoryAllocateInfo	= {};
 		VkDeviceMemory			deviceMemory		= nullptr;
 		VkDeviceSize			sizeDeviceMemory	= -1;
 		VkMappedMemoryRange		sMappedMemoryRange	= {};
+
+		VkBufferView			*pViews				= nullptr;
 		void					*pData				= nullptr;
 
 		int32_t	codeOfError = false;

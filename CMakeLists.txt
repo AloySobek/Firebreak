@@ -13,7 +13,6 @@ file(GLOB SOURCES "source/*.cpp")
 add_library(firebreak SHARED ${SOURCES})
 
 target_link_libraries(firebreak /usr/local/lib/libvulkan.1.1.121.dylib)
-target_link_libraries(firebreak /Users/vrichese/Workspace/Rus42/MyProjects/WanderingStar/Porthole/libs/libglfw.3.3.dylib)
 
 set_target_properties(firebreak PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(firebreak PROPERTIES SOVERSION 1)

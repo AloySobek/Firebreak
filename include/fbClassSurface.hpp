@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/02 15:53:26 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/16 19:22:38 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/23 18:06:31 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,15 @@ class Surface
 		VkSwapchainCreateInfoKHR	*getSwapchainCreateInfo();
 		VkImageViewCreateInfo		*getImageViewCreateInfo();
 		VkAllocationCallbacks		*getAllocation();
-		VkSurfaceFormatKHR			*getFormats(Device2 &device, uint32_t *size = nullptr);
+		VkSurfaceFormatKHR			*getFormats		(Device2 &device, uint32_t *size = nullptr);
 		VkPresentModeKHR			*getPresentModes(Device2 &device, uint32_t *size = nullptr);
 		VkSurfaceCapabilitiesKHR	*getCapabilities(Device2 &device);
 		VkSurfaceFormatKHR			*getFormat();
 		VkPresentModeKHR			*getPresentMode();
 		VkExtent2D					*getExtent();
-		VkImage						*getImages(Device2 &device, uint32_t *size = nullptr);
+		VkImage						*getSwapchainImages(Device2 &device, uint32_t *size = nullptr);
 		VkImageView					*getImageViews();
 		uint32_t					*getImagesCount();
-
 
 		void	provideSurface(VkSurfaceKHR &surface);
 		void	setupImageView(Device2 &device);

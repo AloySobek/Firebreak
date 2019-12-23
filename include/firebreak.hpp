@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/18 20:43:53 by vrichese          #+#    #+#             */
-/*   Updated: 2019/12/19 17:02:24 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/23 12:56:16 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,15 +50,15 @@ class Surface;
 class Instance;
 class Device;
 
+# include <vector>
+# include <cassert>
 # include <fstream>
 # include <iostream>
 # include <stdexcept>
-# include <functional>
-# include <vector>
 # include <algorithm>
-# include <cassert>
+# include <functional>
+# include <vulkan/vulkan.h>
 # include <initializer_list>
-# include "/usr/local/include/vulkan/vulkan.h"
 
 # include "fbClassDevice.hpp"
 # include "fbClassSurface.hpp"
