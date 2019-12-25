@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 16:22:46 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/16 18:23:08 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/24 18:15:35 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,9 @@ class Instance
 		void	create();
 		void	clear(uint32_t mode = VK_NULL_HANDLE);
 
-		friend class Instance2;
-
 		~Instance();
 
-	private:
+	protected:
 		VkInstance				self				= VK_NULL_HANDLE;
 		VkInstanceCreateInfo	sCreateInfo			= {};
 		VkApplicationInfo		sApplicationInfo	= {};

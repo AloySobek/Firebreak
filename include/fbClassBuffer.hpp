@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/09 20:51:03 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/23 18:43:20 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/24 16:09:42 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ class Buffer
 
 		~Buffer() { }
 
-	private:
+	protected:
 		VkBuffer				self				= VK_NULL_HANDLE;
 		VkBufferCreateInfo		sCreateInfo			= {};
 		VkBufferViewCreateInfo	sViewCreateInfo		= {};

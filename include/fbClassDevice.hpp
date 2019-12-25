@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 19:34:16 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/18 15:48:16 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/25 19:28:26 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ class Device
 		Device();
 		Device(Device &anotherDevice) { }
 
-		VkDevice							getSelf();
+		VkDevice							&getSelf();
 		VkPhysicalDevice					getPhysicalSelf();
 		VkDeviceCreateInfo					*getCreateInfo();
 		VkAllocationCallbacks				*getAllocation();

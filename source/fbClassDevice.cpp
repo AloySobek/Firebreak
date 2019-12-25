@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 19:29:48 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/18 15:41:42 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/25 19:28:29 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ Device::Device()
 	memset(pQueues, -1, sizeof(FbQueue) * FB_QUEUE_MAX);
 }
 
-VkDevice	Device::getSelf()
+VkDevice	&Device::getSelf()
 {
 	return (self);
 }
