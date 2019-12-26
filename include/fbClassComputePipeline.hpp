@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/25 18:46:20 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/25 20:12:36 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/26 18:49:34 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,14 +27,21 @@ class ComputePipeline
 		int32_t						getCodeOfError();
 
 		void create(Device &device);
+		void setAmount(uint32_t amount);
+		void toCache();
+		void destroy(Device &device, uint32_t index = 0);
 
 	protected:
-		VkPipeline					*pSelf			= nullptr;
-		VkComputePipelineCreateInfo	*pCreateInfo	= nullptr;
+		VkPipeline					self			= VK_NULL_HANDLE;
+		VkComputePipelineCreateInfo	sCreateInfo		= {};
 		VkPipelineCache				cache			= VK_NULL_HANDLE;
 		VkAllocationCallbacks		sAllocation		= {};
 
-		int32_t	codeOfError	= false;
+		VkPipeline					*pSelfs			= nullptr;
+		VkComputePipelineCreateInfo	*pCreateInfos	= nullptr;
+
+		int32_t		codeOfError	= false;
+		uint32_t	amount		= 1;
 };
 
 class ComputePipeline2 : public ComputePipeline
