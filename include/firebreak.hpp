@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/18 20:43:53 by vrichese          #+#    #+#             */
-/*   Updated: 2019/12/25 18:55:58 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/27 18:29:02 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,8 +43,19 @@
 	const bool validationLayers = false;
 #else
 	const bool validationLayers = true;
-
 #endif
+
+#ifdef SAFEMODE
+	# define THROW_EXCEPTION(x)	if (codeOfError != VK_SUCCESS) throw std::runtime_error(x);
+#else
+	# define THROW_EXCEPTION(x)
+#endif
+
+# ifdef SAFEMODE
+	#define safeCall(x) try { x(); } catch (const std::exception &error){ std::cerr << error.what() << std::endl; exit(EXIT_FAILURE); }
+# else
+	#define safeCall(x) x()
+# endif
 
 class Surface;
 class Instance;
@@ -71,5 +82,6 @@ class Device;
 # include "fbClassQueue.hpp"
 # include "fbClassComputePipeline.hpp"
 # include "fbClassShader.hpp"
+# include "fbClassCache.hpp"
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/25 18:46:20 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/26 18:49:34 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/27 17:24:24 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,19 +26,18 @@ class ComputePipeline
 		VkAllocationCallbacks		&getAllocation();
 		int32_t						getCodeOfError();
 
-		void create(Device &device);
-		void setAmount(uint32_t amount);
-		void toCache();
-		void destroy(Device &device, uint32_t index = 0);
+		void setAmount			(uint32_t amount);
+		void create				(Device &device);
+		void create				(Device &device, Cache &cache);
+		void destroy			(Device &device, uint32_t index = 0);
+		void destroyCache		(Device &device);
 
 	protected:
 		VkPipeline					self			= VK_NULL_HANDLE;
-		VkComputePipelineCreateInfo	sCreateInfo		= {};
-		VkPipelineCache				cache			= VK_NULL_HANDLE;
-		VkAllocationCallbacks		sAllocation		= {};
-
 		VkPipeline					*pSelfs			= nullptr;
+		VkComputePipelineCreateInfo	sCreateInfo		= {};
 		VkComputePipelineCreateInfo	*pCreateInfos	= nullptr;
+		VkAllocationCallbacks		sAllocation		= {};
 
 		int32_t		codeOfError	= false;
 		uint32_t	amount		= 1;

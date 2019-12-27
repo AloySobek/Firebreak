@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 16:22:46 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/24 18:15:35 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/27 18:40:54 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,38 +15,49 @@
 
 # include "firebreak.hpp"
 
-# ifdef NDEBUG
-	#define safeCall(x) try { x() } catch (const std::exception &error){ std::cerr << error.what() << std::endl; exit(FAILURE_EXIT) }
-# else
-	#define safeCall(x) x()
-# endif
-
-
 class Instance
 {
 	public:
 		Instance();
-		Instance(Instance &anotherInstance) { };
+		Instance(Instance &anotherInstance);
+		Instance(VkInstanceCreateInfo &sInstanceCreateInfo);
 
-		VkInstance				getSelf();
-		VkApplicationInfo		*getAppInfo();
-		VkInstanceCreateInfo	*getCreateInfo();
-		VkAllocationCallbacks	*getAllocationInfo();
-		VkLayerProperties		*getLayers(uint32_t *size = nullptr);
-		VkExtensionProperties	*getExtensions(uint32_t *size = nullptr);
-		VkPhysicalDevice		*getPhysicalDevices(uint32_t *size = nullptr);
-		int32_t					getErrorCode();
+		virtual VkInstance				&getSelf();
+		virtual VkInstanceCreateInfo	&getCreateInfo();
+		virtual VkAllocationCallbacks	&getAllocation();
+		virtual int32_t					getErrorCode();
 
 		void	create();
-		void	clear(uint32_t mode = VK_NULL_HANDLE);
+		void	destroy();
 
-		~Instance();
+		virtual ~Instance();
 
 	protected:
-		VkInstance				self				= VK_NULL_HANDLE;
-		VkInstanceCreateInfo	sCreateInfo			= {};
-		VkApplicationInfo		sApplicationInfo	= {};
-		VkAllocationCallbacks	sAllocation			= {};
+		VkInstance				self;
+		VkInstanceCreateInfo	sCreateInfo;
+		VkAllocationCallbacks	sAllocation;
+
+		int32_t	codeOfError;
+};
+
+class Instance2 : protected Instance
+{
+	public:
+		Instance2();
+		Instance2(Instance2 &anotherInstance);
+		Instance2(VkInstanceCreateInfo &sInstanceCreateInfo);
+
+		virtual VkInstance		&getSelf() override;
+		VkLayerProperties		*getLayers			(uint32_t *size = nullptr);
+		VkExtensionProperties	*getExtensions		(uint32_t *size = nullptr);
+		VkPhysicalDevice		*getPhysicalDevices	(uint32_t *size = nullptr);
+
+		void	setAppInfo(const char *pName, uint32_t appVersion, const char *pEngineName, uint32_t engineVersion, uint32_t vulkanVersion = VK_VERSION_1_0);
+		void	setLayers(const char **desiredLayers, uint32_t size);
+		void	setExtensions(const char **desiredExtensions, uint32_t size);
+
+	public:
+		VkApplicationInfo		sApplicationInfo			= {};
 
 		VkLayerProperties		*pAvailableLayers			= nullptr;
 		VkExtensionProperties	*pAvailableExtensions		= nullptr;
@@ -56,19 +67,7 @@ class Instance
 		uint32_t availableExtensionsCount		= 0;
 		uint32_t availablePhysicalDeviceCount	= 0;
 
-		int32_t	codeOfError	= false;
-};
-
-class Instance2 : public Instance
-{
-	public:
-		void	setAppInfo(const char *pName, uint32_t appVersion, const char *pEngineName, uint32_t engineVersion, uint32_t vulkanVersion = VK_VERSION_1_0);
-		void	setLayers(const char **desiredLayers, uint32_t size);
-		void	setExtensions(const char **desiredExtensions, uint32_t size);
-
-	public:
 		bool	isLayerSuitable(VkLayerProperties sLayer, const char **desiredLayers, uint32_t size);
-		bool	isExtensionSuitable(VkExtensionProperties sExtension, const char **desiredExtensions, uint32_t size);
 };
 
 #endif

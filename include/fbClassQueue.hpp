@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/19 17:01:23 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/23 13:02:34 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/27 17:28:44 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,8 +21,8 @@ class Queue
 		Queue();
 		Queue(Queue &anotherQueue);
 
-		VkQueue						getSelf							();
-		VkCommandPool				getCommandPool					();
+		VkQueue						&getSelf							();
+		VkCommandPool				&getCommandPool					();
 		VkDeviceQueueCreateInfo		*getCreateInfo					();
 		VkCommandPoolCreateInfo		*getCommandPoolCreateInfo		();
 		VkAllocationCallbacks		*getAllocation					();
