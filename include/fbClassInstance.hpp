@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 16:22:46 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/27 18:40:54 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/29 15:55:27 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,9 @@ class Instance2 : protected Instance
 		Instance2(VkInstanceCreateInfo &sInstanceCreateInfo);
 
 		virtual VkInstance		&getSelf() override;
-		VkLayerProperties		*getLayers			(uint32_t *size = nullptr);
-		VkExtensionProperties	*getExtensions		(uint32_t *size = nullptr);
-		VkPhysicalDevice		*getPhysicalDevices	(uint32_t *size = nullptr);
+		VkLayerProperties		*getLayers(uint32_t *size = nullptr);
+		VkExtensionProperties	*getExtensions(uint32_t *size = nullptr);
+		VkPhysicalDevice		*getPhysicalDevices(uint32_t *size = nullptr);
 
 		void	setAppInfo(const char *pName, uint32_t appVersion, const char *pEngineName, uint32_t engineVersion, uint32_t vulkanVersion = VK_VERSION_1_0);
 		void	setLayers(const char **desiredLayers, uint32_t size);

@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 19:34:16 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/25 19:28:26 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/29 17:00:59 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,26 +35,16 @@ class Device
 {
 	public:
 		Device();
-		Device(Device &anotherDevice) { }
+		Device(Device &anotherDevice);
 
 		VkDevice							&getSelf();
-		VkPhysicalDevice					getPhysicalSelf();
-		VkDeviceCreateInfo					*getCreateInfo();
-		VkAllocationCallbacks				*getAllocation();
-		VkPhysicalDeviceFeatures			*getFeatures();
-		VkPhysicalDeviceProperties			*getProperties();
-		VkPhysicalDeviceMemoryProperties	*getMemoryProperties();
-		VkLayerProperties					*getLayers(uint32_t *size = nullptr);
-		VkExtensionProperties				*getExtensions(uint32_t *size = nullptr);
-		VkQueueFamilyProperties				*getQueueFamilyProperties(uint32_t *size = nullptr);
-		VkDeviceQueueCreateInfo				*getDeviceQueueCreateInfo();
-		FbQueue								*getQueues();
+		VkPhysicalDevice					&getPhysicalSelf();
+		VkDeviceCreateInfo					&getCreateInfo();
+		VkAllocationCallbacks				&getAllocation();
+		int32_t								getErrorCode();
 
-		void attachPhysicalDevice(Instance &instance, uint32_t type);
-		void pushQueue(int32_t type);
 		void create();
-		void retrieveQueues();
-		void clear(int mode = VK_NULL_HANDLE);
+		void destroy();
 
 		~Device();
 
@@ -64,19 +54,6 @@ class Device
 		VkDeviceCreateInfo		sCreateInfo		= {};
 		VkAllocationCallbacks	sAllocation		= {};
 
-		VkPhysicalDeviceFeatures			sFeatures			= {};
-		VkPhysicalDeviceProperties			sProperties			= {};
-		VkPhysicalDeviceMemoryProperties	sMemoryProperties	= {};
-
-		VkLayerProperties		*pAvailableLayers			= nullptr;
-		VkExtensionProperties	*pAvailableExtensions		= nullptr;
-		VkQueueFamilyProperties	*pAvailableQueuesFamilies	= nullptr;
-		FbQueue					pQueues[FB_QUEUE_MAX];
-
-		uint32_t				availableLayersCount			= 0;
-		uint32_t				availableExtensionsCount		= 0;
-		uint32_t				availableQueuesFamiliesCount	= 0;
-
 		int32_t codeOfError		= false;
 };
 
@@ -84,6 +61,17 @@ class Device2 : public Device
 {
 	public:
 		Device2() : Device() { }
+
+		VkPhysicalDeviceFeatures			*getFeatures();
+		VkPhysicalDeviceProperties			*getProperties();
+		VkPhysicalDeviceMemoryProperties	*getMemoryProperties();
+		VkLayerProperties					*getLayers(uint32_t *size = nullptr);
+		VkExtensionProperties				*getExtensions(uint32_t *size = nullptr);
+		VkQueueFamilyProperties				*getQueueFamilyProperties(uint32_t *size = nullptr);
+
+		void retrieveQueues();
+		void attachPhysicalDevice(Instance &instance, uint32_t type);
+		void pushQueue(int32_t type);
 		void setLayers(const char **desiredLayers, uint32_t size);
 		void setExtensions(const char **desiredExtensions, uint32_t size);
 
@@ -93,6 +81,20 @@ class Device2 : public Device
 		uint32_t *requireIndexArray();
 
 	private:
+		VkPhysicalDeviceFeatures			sFeatures			= {};
+		VkPhysicalDeviceProperties			sProperties			= {};
+		VkPhysicalDeviceMemoryProperties	sMemoryProperties	= {};
+
+		VkLayerProperties		*pAvailableLayers			= nullptr;
+		VkExtensionProperties	*pAvailableExtensions		= nullptr;
+		VkQueueFamilyProperties	*pAvailableQueuesFamilies	= nullptr;
+		FbQueue					pQueues[FB_QUEUE_MAX];
+
+
+		uint32_t				availableLayersCount			= 0;
+		uint32_t				availableExtensionsCount		= 0;
+		uint32_t				availableQueuesFamiliesCount	= 0;
+
 		bool isLayerSuitable(VkLayerProperties sLayer, const char **desiredLayers, uint32_t size);
 		bool isExtensionSuitable(VkExtensionProperties sExtensions, const char **desiredExtensions, uint32_t size);
 		bool isQueueFamilySuitable(VkQueueFamilyProperties queueProperties, VkExtent3D minImageTransferGranularity, uint32_t timestampValidBits, uint32_t queueCount);

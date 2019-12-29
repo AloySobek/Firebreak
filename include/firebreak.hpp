@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/18 20:43:53 by vrichese          #+#    #+#             */
-/*   Updated: 2019/12/27 18:29:02 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/29 16:35:27 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,9 @@
 #endif
 
 #ifdef SAFEMODE
-	# define THROW_EXCEPTION(x)	if (codeOfError != VK_SUCCESS) throw std::runtime_error(x);
+	# define THROW_EXCEPTION_IN_CASE_OF_ERROR(x) if (codeOfError != VK_SUCCESS) throw std::runtime_error(x);
 #else
-	# define THROW_EXCEPTION(x)
+	# define THROW_EXCEPTION_IN_CASE_OF_ERROR(x)
 #endif
 
 # ifdef SAFEMODE
@@ -83,5 +83,6 @@ class Device;
 # include "fbClassComputePipeline.hpp"
 # include "fbClassShader.hpp"
 # include "fbClassCache.hpp"
+# include "fbClassCommandPool.hpp"
 
 #endif

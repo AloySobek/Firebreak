@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 13:35:59 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/27 18:40:51 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/29 15:55:17 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ int32_t	Instance::getErrorCode()
 void Instance::create()
 {
 	codeOfError = vkCreateInstance(&sCreateInfo, sAllocation.pfnAllocation ? &sAllocation : nullptr, &self);
-	THROW_EXCEPTION("Failed to create instance");
+	THROW_EXCEPTION_IN_CASE_OF_ERROR("Failed to create instance");
 }
 
 void Instance::destroy()

@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/19 17:01:23 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/27 17:28:44 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/29 17:00:55 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,9 @@ class Queue
 		Queue();
 		Queue(Queue &anotherQueue);
 
-		VkQueue						&getSelf							();
-		VkCommandPool				&getCommandPool					();
-		VkDeviceQueueCreateInfo		*getCreateInfo					();
-		VkCommandPoolCreateInfo		*getCommandPoolCreateInfo		();
-		VkAllocationCallbacks		*getAllocation					();
+		VkQueue						&getSelf						();
+		VkDeviceQueueCreateInfo		&getCreateInfo					();
+		VkAllocationCallbacks		&getAllocation					();
 		VkCommandBufferAllocateInfo	*getCommandBufferAllocateInfo	();
 		VkCommandBufferBeginInfo	*getCommandBufferBeginInfo		();
 		VkBufferCopy				*getBufferCopy					();
@@ -46,9 +44,7 @@ class Queue
 
 	private:
 		VkQueue						self						= VK_NULL_HANDLE;
-		VkCommandPool				commandPool					= VK_NULL_HANDLE;
 		VkDeviceQueueCreateInfo		sCreateInfo					= {};
-		VkCommandPoolCreateInfo		sCommandPoolCreateInfo		= {};
 		VkAllocationCallbacks		sAllocation					= {};
 		VkCommandBufferAllocateInfo	sCommandBuffersAllocateInfo	= {};
 		VkCommandBufferBeginInfo	sCommandBufferBeginInfo		= {};
