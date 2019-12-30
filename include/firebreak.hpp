@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/11/18 20:43:53 by vrichese          #+#    #+#             */
-/*   Updated: 2019/12/29 16:35:27 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/30 16:39:50 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,5 +84,7 @@ class Device;
 # include "fbClassShader.hpp"
 # include "fbClassCache.hpp"
 # include "fbClassCommandPool.hpp"
+# include "fbClassBufferView.hpp"
+# include "fbClassImageView.hpp"
 
 #endif

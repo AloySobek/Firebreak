@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/12 17:57:53 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/23 18:42:58 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/30 15:20:07 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,13 +18,13 @@
 class Image
 {
 	public:
+		Image();
+		explicit Image(std::initializer_list<int> list);
+		Image(Image &anotherImage);
 
-		Image() { }
-		Image(Image &anotherImage) { }
-
-		VkImage					getSelf();
-		VkImageCreateInfo		*getCreateInfo();
-		VkAllocationCallbacks	*getAllocationInfo();
+		VkImage					&getSelf();
+		VkImageCreateInfo		&getCreateInfo();
+		VkAllocationCallbacks	&getAllocation();
 		VkImageViewCreateInfo	*getImageViewCreateInfo();
 		VkImageSubresource		*getImageSubresource(Device &device);
 		VkSubresourceLayout		*getImageSubresourceLayout(Device &device);

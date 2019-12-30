@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/01 19:34:16 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/29 17:00:59 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/30 14:36:31 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,33 +15,17 @@
 
 # include "firebreak.hpp"
 
-typedef enum	FbQueueTypes
-{
-	FB_QUEUE_GRAPHIC,
-	FB_QUEUE_COMPUTE,
-	FB_QUEUE_TRANSFER,
-	FB_QUEUE_SPARSE_BINDING,
-	FB_QUEUE_PRESENT,
-	FB_QUEUE_MAX
-}				FbQueueTypes;
-
-typedef struct		FbQueue
-{
-	VkQueue			self;
-	int32_t			index;
-}					FbQueue;
-
 class Device
 {
 	public:
 		Device();
 		Device(Device &anotherDevice);
 
-		VkDevice							&getSelf();
-		VkPhysicalDevice					&getPhysicalSelf();
-		VkDeviceCreateInfo					&getCreateInfo();
-		VkAllocationCallbacks				&getAllocation();
-		int32_t								getErrorCode();
+		VkDevice				&getSelf();
+		VkPhysicalDevice		&getPhysicalSelf();
+		VkDeviceCreateInfo		&getCreateInfo();
+		VkAllocationCallbacks	&getAllocation();
+		int32_t					getErrorCode();
 
 		void create();
 		void destroy();

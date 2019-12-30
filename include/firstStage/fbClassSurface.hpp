@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/02 15:53:26 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/23 18:06:31 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/30 17:05:12 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,16 +21,14 @@ class Surface
 		Surface();
 		Surface(Surface &anotherSurface);
 
-		VkSurfaceKHR				getSelf();
-		VkSwapchainKHR				getSwapchainSelf();
-		VkSwapchainCreateInfoKHR	*getSwapchainCreateInfo();
+		VkSurfaceKHR				&getSelf();
+		VkAllocationCallbacks		&getAllocation();
+		VkSurfaceFormatKHR			&getFormat();
+		VkPresentModeKHR			&getPresentMode();
+
 		VkImageViewCreateInfo		*getImageViewCreateInfo();
-		VkAllocationCallbacks		*getAllocation();
-		VkSurfaceFormatKHR			*getFormats		(Device2 &device, uint32_t *size = nullptr);
 		VkPresentModeKHR			*getPresentModes(Device2 &device, uint32_t *size = nullptr);
 		VkSurfaceCapabilitiesKHR	*getCapabilities(Device2 &device);
-		VkSurfaceFormatKHR			*getFormat();
-		VkPresentModeKHR			*getPresentMode();
 		VkExtent2D					*getExtent();
 		VkImage						*getSwapchainImages(Device2 &device, uint32_t *size = nullptr);
 		VkImageView					*getImageViews();
@@ -45,15 +43,13 @@ class Surface
 
 	private:
 		VkSurfaceKHR				self					= VK_NULL_HANDLE;
-		VkSwapchainKHR				swapchain				= VK_NULL_HANDLE;
-		VkSwapchainCreateInfoKHR	sSwapchainCreateInfo	= {};
 		VkImageViewCreateInfo		sImageViewCreateInfo	= {};
 		VkAllocationCallbacks		sAllocation				= {};
+		VkSurfaceFormatKHR			sFormat					= {};
+		VkPresentModeKHR			sPresentMode			= {};
+		VkSurfaceCapabilitiesKHR	sCapabilities			= {};
+		VkExtent2D					sExtent					= {WIDTH, HEIGHT};
 
-		VkSurfaceCapabilitiesKHR	sCapabilities	= {};
-		VkSurfaceFormatKHR			sFormat			= {};
-		VkPresentModeKHR			sPresentMode	= {};
-		VkExtent2D					sExtent			= {WIDTH, HEIGHT};
 
 		VkSurfaceFormatKHR	*pFormats		= nullptr;
 		VkPresentModeKHR	*pPresentModes	= nullptr;

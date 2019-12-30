@@ -6,7 +6,7 @@
 /*   By: Rustam <super.rustamm@gmail.com>           +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/12/19 17:01:23 by Rustam            #+#    #+#             */
-/*   Updated: 2019/12/29 17:00:55 by Rustam           ###   ########.fr       */
+/*   Updated: 2019/12/30 14:36:35 by Rustam           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ class Queue
 		Queue(Queue &anotherQueue);
 
 		VkQueue						&getSelf						();
-		VkDeviceQueueCreateInfo		&getCreateInfo					();
 		VkAllocationCallbacks		&getAllocation					();
 		VkCommandBufferAllocateInfo	*getCommandBufferAllocateInfo	();
 		VkCommandBufferBeginInfo	*getCommandBufferBeginInfo		();
@@ -30,7 +29,6 @@ class Queue
 		VkSubmitInfo				*getSubmitInfo					();
 		VkCommandBuffer				getCommandBuffer				(uint32_t index);
 
-		void retrive				(Device &device);
 		void createCommandPool		(Device &device);
 		void allocateCommandBuffers	(Device &device);
 		void freeCommandBuffers		(Device &device);
@@ -44,7 +42,6 @@ class Queue
 
 	private:
 		VkQueue						self						= VK_NULL_HANDLE;
-		VkDeviceQueueCreateInfo		sCreateInfo					= {};
 		VkAllocationCallbacks		sAllocation					= {};
 		VkCommandBufferAllocateInfo	sCommandBuffersAllocateInfo	= {};
 		VkCommandBufferBeginInfo	sCommandBufferBeginInfo		= {};
