@@ -18,20 +18,31 @@
 class CommandPool
 {
 	public:
-		CommandPool() { }
-		CommandPool(CommandPool &anotherCommandPool) { }
+		CommandPool			();
 
-		VkCommandPool			&getSelf();
-		VkCommandPoolCreateInfo	&getCreateInfo();
-		VkAllocationCallbacks	&getAllocaiton();
-		int32_t 				getErrorCode();
+		VkCommandPool					&getSelf();
+		VkCommandPoolCreateInfo			&getCreateInfo();
+		VkAllocationCallbacks			&getAllocation();
+		VkCommandBufferAllocateInfo		&getCommandBufferAllocateInfo();
+		std::vector<VkCommandBuffer>	&getCommandBuffer(uint32_t group = 0);
+		int32_t 						getErrorCode();
+
+		void create					(Device &device);
+		void allocateCommandBuffers	(Device &device);
+		void freeCommandBuffers		(Device &device);
+		void destroy				(Device &device);
+
+		~CommandPool();
 
 	private:
-		VkCommandPool			self		= VK_NULL_HANDLE;
-		VkCommandPoolCreateInfo	sCreateInfo	= {};
-		VkAllocationCallbacks	sAllocation	= {};
+		VkCommandPool				self						= VK_NULL_HANDLE;
+		VkCommandPoolCreateInfo		sCreateInfo					= {};
+		VkAllocationCallbacks		sAllocation					= {};
+		VkCommandBufferAllocateInfo	sCommandBufferAllocateInfo	= {};
 
-		int32_t					codeOfError = false;
+		std::vector<std::vector<VkCommandBuffer>>	ppCommandBuffers;
+
+		int32_t	codeOfError	= false;
 };
 
 #endif

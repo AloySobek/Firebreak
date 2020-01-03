@@ -15,17 +15,29 @@
 
 # include "firebreak.hpp"
 
-class Cache
+class PipelineCache
 {
 	public:
-		Cache() { };
-		Cache(Cache &anotherCache) { };
+		PipelineCache			();
+		explicit PipelineCache	(std::initializer_list<int> initList);
+		PipelineCache			(PipelineCache &anotherPipelineCache);
 
-		~Cache() { };
+		VkPipelineCache				&getSelf();
+		VkPipelineCacheCreateInfo	&getCreateInfo();
+		VkAllocationCallbacks		&getAllocation();
+		int32_t						getErrorCode();
+
+		void create();
+		void destroy();
+
+		~PipelineCache();
 
 	protected:
-		VkPipelineCache				self;
-		VkPipelineCacheCreateInfo	sCreateInfo = { };
-}
+		VkPipelineCache				self		= VK_NULL_HANDLE;
+		VkPipelineCacheCreateInfo	sCreateInfo	= {};
+		VkAllocationCallbacks		sAllocation	= {};
+
+		int32_t						codeOfError	= false;
+};
 
 #endif

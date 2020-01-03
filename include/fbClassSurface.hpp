@@ -18,52 +18,23 @@
 class Surface
 {
 	public:
-		Surface();
-		Surface(Surface &anotherSurface);
+		Surface			();
+		explicit Surface(std::initializer_list<int> initList);
+		Surface			(Surface &anotherSurface);
 
 		VkSurfaceKHR				&getSelf();
-		VkAllocationCallbacks		&getAllocation();
 		VkSurfaceFormatKHR			&getFormat();
-		VkPresentModeKHR			&getPresentMode();
+		VkSurfaceCapabilitiesKHR	&getCapabilities();
+		int32_t						getCodeOfError();
 
-		VkImageViewCreateInfo		*getImageViewCreateInfo();
-		VkPresentModeKHR			*getPresentModes(Device2 &device, uint32_t *size = nullptr);
-		VkSurfaceCapabilitiesKHR	*getCapabilities(Device2 &device);
-		VkExtent2D					*getExtent();
-		VkImage						*getSwapchainImages(Device2 &device, uint32_t *size = nullptr);
-		VkImageView					*getImageViews();
-		uint32_t					*getImagesCount();
-
-		void	provideSurface(VkSurfaceKHR &surface);
-		void	setupImageView(Device2 &device);
-		void	createSwapchain(Device2 &device);
-		void	createImageView(Device2 &device);
-
-		~Surface() { }
+		~Surface();
 
 	private:
-		VkSurfaceKHR				self					= VK_NULL_HANDLE;
-		VkImageViewCreateInfo		sImageViewCreateInfo	= {};
-		VkAllocationCallbacks		sAllocation				= {};
-		VkSurfaceFormatKHR			sFormat					= {};
-		VkPresentModeKHR			sPresentMode			= {};
-		VkSurfaceCapabilitiesKHR	sCapabilities			= {};
-		VkExtent2D					sExtent					= {WIDTH, HEIGHT};
+		VkSurfaceKHR				self			= VK_NULL_HANDLE;
+		VkSurfaceFormatKHR			sFormat			= {};
+		VkSurfaceCapabilitiesKHR	sCapabilities	= {};
 
-
-		VkSurfaceFormatKHR	*pFormats		= nullptr;
-		VkPresentModeKHR	*pPresentModes	= nullptr;
-
-		VkImage		*pImages			= nullptr;
-		VkImageView	*pImageViews		= nullptr;
-
-		uint32_t khrFormatsCount		= 0;
-		uint32_t khrPresentModesCount	= 0;
-		uint32_t imagesCount			= 0;
-		uint32_t imageViewsCount		= 0;
-
-		bool capabilities	= false;
-		int32_t codeOfError	= false;
+		int32_t						codeOfError		= false;
 };
 
 class Surface2 : public Surface

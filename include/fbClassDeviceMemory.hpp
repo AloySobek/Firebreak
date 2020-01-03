@@ -19,7 +19,7 @@ class DeviceMemory
 {
 	public:
 		DeviceMemory();
-		DeviceMemory(std::initializier_list<int> initList);
+		DeviceMemory(std::initializer_list<int> initList);
 		DeviceMemory(DeviceMemory &anotherDeviceMemory);
 
 		VkDeviceMemory			&getSelf();
@@ -39,6 +39,6 @@ class DeviceMemory
 		VkDeviceSize			sSize			= {};
 
 		int32_t	codeOfError	= false;
-}
+};
 
 #endif

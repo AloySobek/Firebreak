@@ -22,38 +22,23 @@ class Image
 		explicit Image(std::initializer_list<int> list);
 		Image(Image &anotherImage);
 
-		VkImage					&getSelf();
-		VkImageCreateInfo		&getCreateInfo();
-		VkAllocationCallbacks	&getAllocation();
-		VkImageViewCreateInfo	*getImageViewCreateInfo();
-		VkImageSubresource		*getImageSubresource(Device &device);
-		VkSubresourceLayout		*getImageSubresourceLayout(Device &device);
-		VkMemoryRequirements	*getMemoryRequirements(Device &device);
+		VkImage							&getSelf();
+		VkImageCreateInfo				&getCreateInfo();
+		VkAllocationCallbacks			&getAllocation();
+		int32_t							getCodeOfError();
 
-		void create			(Device &device);
-		void createView		(Device &device);
-		void destroy		(Device &device);
-		void destroyView	(Device &device, uint32_t index);
-		void destroyViews	(Device &device);
+		void create	(Device &device);
+		void bind	(Device &device, DeviceMemory &deviceMemory, VkDeviceSize offset);
+		void destroy(Device &device);
 
 		~Image() { }
 
 	protected:
 		VkImage					self					= VK_NULL_HANDLE;
 		VkImageCreateInfo		sCreateInfo				= {};
-		VkImageSubresource		sImageSubresource		= {};
-		VkSubresourceLayout		sImageSubresourceLayout	= {};
-		VkImageViewCreateInfo	sImageViewCreateInfo	= {};
-		VkMemoryRequirements	sMemoryRequirements		= {};
 		VkAllocationCallbacks	sAllocation				= {};
 
-		VkImageView	*pViews = nullptr;
-
-		uint32_t viewCount = 0;
-
 		int32_t codeOfError = false;
-
-		bool	subresourceChecked = false;
 };
 
 #endif

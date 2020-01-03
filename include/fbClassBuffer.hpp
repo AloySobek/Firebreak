@@ -25,14 +25,11 @@ class Buffer
 		VkBuffer				&getSelf();
 		VkBufferCreateInfo		&getCreateInfo();
 		VkAllocationCallbacks	&getAllocation();
-		VkMemoryRequirements	&getMemoryRequirements();
 		int32_t					getErrorCode();
 
-		void create				(Device &device);
-		void destroy			(Device &device);
-		void createView			(Device &device);
-		void discardDeviceCache	(Device &device, uint32_t memoryRangeCount);
-		void refreshDeviceCache	(Device &device, uint32_t memoryRangeCount);
+		void create	(Device &device);
+		void bind	(Device &device, DeviceMemory &deviceMemory, VkDeviceSize offset);
+		void destroy(Device &device);
 
 		~Buffer();
 
@@ -40,14 +37,6 @@ class Buffer
 		VkBuffer				self				= VK_NULL_HANDLE;
 		VkBufferCreateInfo		sCreateInfo			= {};
 		VkAllocationCallbacks	sAllocation			= {};
-		VkMemoryRequirements	sMemoryRequirements = {};
-
-		VkMemoryAllocateInfo	sMemoryAllocateInfo	= {};
-		VkDeviceMemory			deviceMemory		= nullptr;
-		VkDeviceSize			sizeDeviceMemory	= -1;
-		VkMappedMemoryRange		sMappedMemoryRange	= {};
-
-		void					*pData				= nullptr;
 
 		int32_t	codeOfError = false;
 };

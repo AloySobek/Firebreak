@@ -19,7 +19,6 @@ class Device
 {
 	public:
 		Device();
-		Device(Device &anotherDevice);
 
 		VkDevice				&getSelf();
 		VkPhysicalDevice		&getPhysicalSelf();
@@ -38,7 +37,7 @@ class Device
 		VkDeviceCreateInfo		sCreateInfo		= {};
 		VkAllocationCallbacks	sAllocation		= {};
 
-		int32_t codeOfError		= false;
+		int32_t codeOfError;
 };
 
 class Device2 : public Device
@@ -72,8 +71,6 @@ class Device2 : public Device
 		VkLayerProperties		*pAvailableLayers			= nullptr;
 		VkExtensionProperties	*pAvailableExtensions		= nullptr;
 		VkQueueFamilyProperties	*pAvailableQueuesFamilies	= nullptr;
-		FbQueue					pQueues[FB_QUEUE_MAX];
-
 
 		uint32_t				availableLayersCount			= 0;
 		uint32_t				availableExtensionsCount		= 0;

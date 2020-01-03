@@ -17,19 +17,6 @@ Instance::Instance() : self(VK_NULL_HANDLE), sCreateInfo({}), sAllocation({}), c
 	sCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 }
 
-Instance::Instance(VkInstanceCreateInfo &sCreateInfo) : Instance()
-{
-	sCreateInfo = sCreateInfo;
-}
-
-Instance::Instance(Instance &anotherInstance)
-{
-	anotherInstance.self = self;
-	anotherInstance.sCreateInfo = sCreateInfo;
-	anotherInstance.sAllocation = sAllocation;
-	anotherInstance.codeOfError = false;
-}
-
 VkInstance				&Instance::getSelf(void)
 {
 	return (self);

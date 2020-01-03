@@ -19,16 +19,14 @@ class Instance
 {
 	public:
 		Instance();
-		Instance(Instance &anotherInstance);
-		Instance(VkInstanceCreateInfo &sInstanceCreateInfo);
 
 		virtual VkInstance				&getSelf();
 		virtual VkInstanceCreateInfo	&getCreateInfo();
 		virtual VkAllocationCallbacks	&getAllocation();
 		virtual int32_t					getErrorCode();
 
-		void	create();
-		void	destroy();
+		virtual void	create();
+		virtual void	destroy();
 
 		virtual ~Instance();
 
@@ -39,6 +37,12 @@ class Instance
 
 		int32_t	codeOfError;
 };
+
+/*
+** This border to the next layer of firebreak framework <><><><><><><><><><><><><><><><><>
+** This border to the next layer of firebreak framework <><><><><><><><><><><><><><><><><>
+** This border to the next layer of firebreak framework <><><><><><><><><><><><><><><><><>
+*/
 
 class Instance2 : protected Instance
 {

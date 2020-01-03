@@ -22,14 +22,12 @@ class Queue
 		Queue(Queue &anotherQueue);
 
 		VkQueue						&getSelf						();
-		VkAllocationCallbacks		&getAllocation					();
 		VkCommandBufferAllocateInfo	*getCommandBufferAllocateInfo	();
 		VkCommandBufferBeginInfo	*getCommandBufferBeginInfo		();
 		VkBufferCopy				*getBufferCopy					();
 		VkSubmitInfo				*getSubmitInfo					();
 		VkCommandBuffer				getCommandBuffer				(uint32_t index);
 
-		void createCommandPool		(Device &device);
 		void allocateCommandBuffers	(Device &device);
 		void freeCommandBuffers		(Device &device);
 		void destroyCommandPool		(Device &device);
@@ -42,7 +40,6 @@ class Queue
 
 	private:
 		VkQueue						self						= VK_NULL_HANDLE;
-		VkAllocationCallbacks		sAllocation					= {};
 		VkCommandBufferAllocateInfo	sCommandBuffersAllocateInfo	= {};
 		VkCommandBufferBeginInfo	sCommandBufferBeginInfo		= {};
 		VkBufferCopy				sBufferCopy					= {};

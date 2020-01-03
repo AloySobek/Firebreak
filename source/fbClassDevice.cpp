@@ -12,7 +12,7 @@
 
 #include "firebreak.hpp"
 
-Device::Device()
+Device::Device() : self(VK_NULL_HANDLE), physicalSelf(VK_NULL_HANDLE), sCreateInfo({}), sAllocation({})
 {
 	sCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 }
