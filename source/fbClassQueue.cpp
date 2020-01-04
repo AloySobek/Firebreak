@@ -11,3 +11,15 @@
 /* ************************************************************************** */
 
 #include "firebreak.hpp"
+
+Queue::Queue() : sCreateInfo({}), codeOfError(false)
+{
+	sCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+}
+
+void Queue::retrieve(Device &device)
+{
+	assert(device.getSelf());
+	for (int i = 0; i < sCreateInfo.queueCount; ++i)
+		vkGetDeviceQueue(device.getSelf(), sCreateInfo.queueFamilyIndex, i, &selfs[i]);
+}

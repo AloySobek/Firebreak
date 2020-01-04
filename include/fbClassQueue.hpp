@@ -19,31 +19,20 @@ class Queue
 {
 	public:
 		Queue();
-		Queue(Queue &anotherQueue);
 
-		VkQueue						&getSelf						();
-		VkCommandBufferAllocateInfo	*getCommandBufferAllocateInfo	();
-		VkCommandBufferBeginInfo	*getCommandBufferBeginInfo		();
-		VkBufferCopy				*getBufferCopy					();
-		VkSubmitInfo				*getSubmitInfo					();
-		VkCommandBuffer				getCommandBuffer				(uint32_t index);
+		VkQueue						&getSelf		(uint32_t index = 0);
+		VkDeviceQueueCreateInfo		&getCreateInfo	();
+		int32_t						getCodeOfError	();
 
-		void allocateCommandBuffers	(Device &device);
-		void freeCommandBuffers		(Device &device);
-		void destroyCommandPool		(Device &device);
-		void beginCommandBuffer		(uint32_t bufferIndex);
-		void cmdCopyBuffer			(uint32_t bufferIndex, VkBuffer src, VkBuffer dst, uint32_t regionCount);
-		void endCommandBuffer		(uint32_t bufferIndex);
-		void resetCommandBuffer		(uint32_t bufferIndex, VkCommandBufferResetFlags flags);
-		void resetCommandPool		(Device &device, VkCommandPoolResetFlags flags);
-		void submitTasks			();
+		void retrieve(Device &device);
+
+		~Queue();
 
 	private:
-		VkQueue						self						= VK_NULL_HANDLE;
-		VkCommandBufferAllocateInfo	sCommandBuffersAllocateInfo	= {};
-		VkCommandBufferBeginInfo	sCommandBufferBeginInfo		= {};
-		VkBufferCopy				sBufferCopy					= {};
-		VkSubmitInfo				sSubmitInfo					= {};
+		std::vector<VkQueue>	selfs;
+		VkDeviceQueueCreateInfo	sCreateInfo;
+
+		int32_t	codeOfError;
 };
 
 #endif

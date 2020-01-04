@@ -87,6 +87,5 @@ class Device;
 # include "fbClassBufferView.hpp"
 # include "fbClassImageView.hpp"
 # include "fbClassDeviceMemory.hpp"
-# include "fbClassCommandBuffer.hpp"
 
 #endif
