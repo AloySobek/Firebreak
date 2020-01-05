@@ -50,7 +50,7 @@ VkCommandBuffer		&CommandPool::getCommandBuffer(uint32_t group, uint32_t index)
 
 int32_t		CommandPool::getErrorCode()
 {
-	vkCmdClearDepthStencilImage()
+	vkCmdCopyImage()
 	return (codeOfError);
 }
 

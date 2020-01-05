@@ -52,3 +52,8 @@ void hello(Fence &pFence)
 {
 	pFence.getSelf();
 }
+
+int main(void)
+{
+	
+}
