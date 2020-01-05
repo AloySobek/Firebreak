@@ -18,7 +18,8 @@
 class Instance
 {
 	public:
-		Instance();
+		Instance(VkInstanceCreateInfo info = {}, VkAllocationCallbacks allocation = {});
+		Instance(VkAllocationCallbacks allocation = {}) : Instance({}, allocation) { }
 
 		virtual VkInstance				&getSelf();
 		virtual VkInstanceCreateInfo	&getCreateInfo();

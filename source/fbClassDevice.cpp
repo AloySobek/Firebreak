@@ -12,24 +12,32 @@
 
 #include "firebreak.hpp"
 
-Device::Device() : self(VK_NULL_HANDLE), physicalSelf(VK_NULL_HANDLE), sCreateInfo({}), sAllocation({})
+Device::Device(VkDeviceCreateInfo info, VkAllocationCallbacks allocation)
+	: self(VK_NULL_HANDLE), physicalSelf(VK_NULL_HANDLE), sCreateInfo(info), sAllocation(allocation), codeOfError(false)
 {
 	sCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 }
 
-VkDevice	&Device::getSelf()
+VkDevice				&Device::getSelf()
 {
+	assert(self);
 	return (self);
 }
 
-VkPhysicalDevice	&Device::getPhysicalSelf()
+VkPhysicalDevice		&Device::getPhysicalSelf()
 {
+	assert(physicalSelf);
 	return (physicalSelf);
 }
 
-VkDeviceCreateInfo	&Device::getCreateInfo()
+VkDeviceCreateInfo		&Device::getCreateInfo()
 {
 	return (sCreateInfo);
+}
+
+VkAllocationCallbacks	&Device::getAllocation()
+{
+	return (sAllocation);
 }
 
 void Device::create()

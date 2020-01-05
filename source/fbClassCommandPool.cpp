@@ -12,8 +12,8 @@
 
 #include "firebreak.hpp"
 
-CommandPool::CommandPool() : self(VK_NULL_HANDLE), sCreateInfo({}), sAllocation({}),
-								sCommandBufferAllocateInfo({}), sCommandBufferBeginInfo({})
+CommandPool::CommandPool(VkCommandPoolCreateInfo info, VkAllocationCallbacks allocation)
+	: self(VK_NULL_HANDLE), sCreateInfo(info), sAllocation(allocation), sCommandBufferAllocateInfo({}), sCommandBufferBeginInfo({})
 {
 	sCreateInfo.sType						= VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 	sCommandBufferAllocateInfo.sType		= VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -50,6 +50,7 @@ VkCommandBuffer		&CommandPool::getCommandBuffer(uint32_t group, uint32_t index)
 
 int32_t		CommandPool::getErrorCode()
 {
+	vkCmdClearDepthStencilImage()
 	return (codeOfError);
 }
 

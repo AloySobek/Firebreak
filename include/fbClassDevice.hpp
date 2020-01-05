@@ -18,18 +18,19 @@
 class Device
 {
 	public:
-		Device();
+		Device(VkDeviceCreateInfo info = {}, VkAllocationCallbacks allocation = {});
+		Device(VkAllocationCallbacks allocation) : Device({}, allocation) { }
 
-		VkDevice				&getSelf();
-		VkPhysicalDevice		&getPhysicalSelf();
-		VkDeviceCreateInfo		&getCreateInfo();
-		VkAllocationCallbacks	&getAllocation();
-		int32_t					getErrorCode();
+		virtual VkDevice				&getSelf();
+		virtual VkPhysicalDevice		&getPhysicalSelf();
+		virtual VkDeviceCreateInfo		&getCreateInfo();
+		virtual VkAllocationCallbacks	&getAllocation();
+		virtual int32_t					getErrorCode();
 
-		void create();
-		void destroy();
+		virtual void create();
+		virtual void destroy();
 
-		~Device();
+		virtual ~Device();
 
 	protected:
 		VkDevice				self			= VK_NULL_HANDLE;

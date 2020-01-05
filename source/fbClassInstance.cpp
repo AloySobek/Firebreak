@@ -12,13 +12,15 @@
 
 #include "firebreak.hpp"
 
-Instance::Instance() : self(VK_NULL_HANDLE), sCreateInfo({}), sAllocation({}), codeOfError(false)
+Instance::Instance(VkInstanceCreateInfo info, VkAllocationCallbacks allocation)
+	: self{VK_NULL_HANDLE}, sCreateInfo{info}, sAllocation{allocation}, codeOfError{false}
 {
 	sCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 }
 
 VkInstance				&Instance::getSelf(void)
 {
+	assert(self);
 	return (self);
 }
 
@@ -32,7 +34,7 @@ VkAllocationCallbacks	&Instance::getAllocation()
 	return (sAllocation);
 }
 
-int32_t	Instance::getErrorCode()
+int32_t					Instance::getErrorCode()
 {
 	return (codeOfError);
 }

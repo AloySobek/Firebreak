@@ -24,13 +24,16 @@ class Queue
 		VkDeviceQueueCreateInfo		&getCreateInfo	();
 		int32_t						getCodeOfError	();
 
-		void retrieve(Device &device);
+		void retrieve	(Device &device);
+		void submitTasks(Device &device, uint32_t index = 0, Fence *pFence = nullptr);
 
 		~Queue();
 
 	private:
-		std::vector<VkQueue>	selfs;
+		std::vector<VkQueue>	pSelfs;
 		VkDeviceQueueCreateInfo	sCreateInfo;
+
+		std::vector<VkSubmitInfo>	pSubmitInfo;
 
 		int32_t	codeOfError;
 };

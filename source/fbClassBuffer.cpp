@@ -15,7 +15,6 @@
 Buffer::Buffer()
 {
 	sCreateInfo.sType			= VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-	sMemoryAllocateInfo.sType	= VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
 }
 
 VkBuffer				&Buffer::getSelf()

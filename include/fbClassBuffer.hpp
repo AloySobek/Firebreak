@@ -18,9 +18,7 @@
 class Buffer
 {
 	public:
-		Buffer			();
-		explicit Buffer	(std::initializer_list<int> initList);
-		Buffer			(Buffer &anotherBuffer);
+		Buffer ();
 
 		VkBuffer				&getSelf();
 		VkBufferCreateInfo		&getCreateInfo();
@@ -37,6 +35,8 @@ class Buffer
 		VkBuffer				self				= VK_NULL_HANDLE;
 		VkBufferCreateInfo		sCreateInfo			= {};
 		VkAllocationCallbacks	sAllocation			= {};
+		VkDeviceSize			size				= VK_WHOLE_SIZE;
+		VkDeviceSize			offset				= 0;
 
 		int32_t	codeOfError = false;
 };
