@@ -40,9 +40,9 @@ class FbInstance
 };
 
 /*
-** This border to the next layer of firebreak framework <><><><><><><><><><><><>
-** This border to the next layer of firebreak framework <><><><><><><><><><><><>
-** This border to the next layer of firebreak framework <><><><><><><><><><><><>
+** This is border between layers in firebreak framework <><><><><><><><><><><><>
+** This is border between layers in firebreak framework <><><><><><><><><><><><>
+** This is border between layers in firebreak framework <><><><><><><><><><><><>
 */
 
 static std::vector<char *> namesStub{VK_NULL_HANDLE};

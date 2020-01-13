@@ -15,24 +15,26 @@
 
 #include "firebreak.hpp"
 
-class Swapchain
+class FbSwapchain
 {
 	public:
-		Swapchain			();
-		explicit Swapchain	(std::initializer_list<int> initList);
-		Swapchain			(Swapchain &anotherSwapchain);
+		FbSwapchain(VkAllocationCallbacks allocation) : FbSwapchain({}, allocation);
+		FbSwapchain(VkSwapchainCreateInfoKHR info = {}, VkAllocationCallbacks allocation = {});
 
 		VkSwapchainKHR				&getSelf();
 		VkSwapchainCreateInfoKHR	&getCreateInfo();
 		VkAllocationCallbacks		&getAllocation();
+		int32_t						getCodeOfError();
 
-		void	create();
-		void	destroy();
+		void	create(FbDevice &device);
+		void	destroy(FbDevice &device);
 
 	private:
-		VkSwapchainKHR				self		= VK_NULL_HANDLE;
-		VkSwapchainCreateInfoKHR	sCreateInfo	= {};
-		VkAllocationCallbacks		sAllocation = {};
+		VkSwapchainKHR				self;
+		VkSwapchainCreateInfoKHR	sCreateInfo;
+		VkAllocationCallbacks		sAllocation;
+
+		int32_t	codeOfError;
 }
 
 #endif
