@@ -12,48 +12,22 @@
 
 #include "firebreak.hpp"
 
-Instance::Instance(VkInstanceCreateInfo info, VkAllocationCallbacks allocation)
+FbInstance::FbInstance(VkInstanceCreateInfo info, VkAllocationCallbacks allocation)
 	: self{VK_NULL_HANDLE}, sCreateInfo{info}, sAllocation{allocation}, codeOfError{false}
 {
 	sCreateInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 }
 
-VkInstance				&Instance::getSelf(void)
-{
-	assert(self);
-	return (self);
-}
-
-VkInstanceCreateInfo	&Instance::getCreateInfo()
-{
-	return (sCreateInfo);
-}
-
-VkAllocationCallbacks	&Instance::getAllocation()
-{
-	return (sAllocation);
-}
-
-int32_t					Instance::getErrorCode()
-{
-	return (codeOfError);
-}
-
-void Instance::create()
+void FbInstance::create()
 {
 	codeOfError = vkCreateInstance(&sCreateInfo, sAllocation.pfnAllocation ? &sAllocation : nullptr, &self);
 	THROW_EXCEPTION_IN_CASE_OF_ERROR("Failed to create instance");
 }
 
-void Instance::destroy()
+void FbInstance::destroy()
 {
 	vkDestroyInstance(self, sAllocation.pfnFree ? &sAllocation : nullptr);
 	self = VK_NULL_HANDLE;
-}
-
-Instance::~Instance()
-{
-	destroy();
 }
 
 /*
@@ -62,74 +36,86 @@ Instance::~Instance()
 ** This border to the next layer of firebreak framework <><><><><><><><><><><><><><><><><>
 */
 
-Instance2::Instance2() : Instance()
+FbInstance2::FbInstance2(std::vector<char *> &extensions, std::vector<char *> &layers) : FbInstance()
 {
-	;
-}
-
-Instance2::Instance2(VkInstanceCreateInfo &sCreateInfo) : Instance(sCreateInfo)
-{
-	;
-}
-
-VkInstance		&Instance2::getSelf()
-{
-	assert(self);
-	return (self);
-}
-
-VkLayerProperties	*Instance2::getLayers(uint32_t *size)
-{
-	if (!pAvailableLayers)
+	if (&layers != &namesStub)
 	{
-		codeOfError = vkEnumerateInstanceLayerProperties(&availableLayersCount, nullptr);
-		THROW_EXCEPTION("Failed to enumerate instance layer properties");
-		pAvailableLayers = new VkLayerProperties[availableLayersCount];
-		sCreateInfo.ppEnabledLayerNames	= new const char *[availableLayersCount];
-		codeOfError = vkEnumerateInstanceLayerProperties(&availableLayersCount, pAvailableLayers);
-		THROW_EXCEPTION("Failed to enumerate instance layer properties");
+		SAFECALL(getLayers);
+		setLayers(layers);
 	}
-	size ? *size = availableLayersCount : false;
-	return (pAvailableLayers);
-}
-
-VkExtensionProperties	*Instance2::getExtensions(uint32_t *size)
-{
-	if (!pAvailableExtensions)
+	if (&extensions != &namesStub)
 	{
-		codeOfError = vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionsCount, nullptr);
-		THROW_EXCEPTION("Failed to enumerate instance extension properties");
-		pAvailableExtensions = new VkExtensionProperties[availableExtensionsCount];
-		sCreateInfo.ppEnabledExtensionNames = new const char *[availableExtensionsCount];
-		codeOfError = vkEnumerateInstanceExtensionProperties(nullptr, &availableExtensionsCount, pAvailableExtensions);
-		THROW_EXCEPTION("Failed to enumerate instance extension properties");
+		SAFECALL(getExtensions);
+		setExtensions(extensions);
 	}
-	size ? *size = availableExtensionsCount : false;
-	return (pAvailableExtensions);
 }
 
-VkPhysicalDevice	*Instance2::getPhysicalDevices(uint32_t *size)
+std::vector<VkLayerProperties>	&FbInstance2::getLayers()
 {
-	if (!pAvailablePhysicalDevices)
+	if (!availableLayers.size())
 	{
-		if ((codeOfError = vkEnumeratePhysicalDevices(self, &availablePhysicalDeviceCount, nullptr)) != VK_SUCCESS)
-			throw std::runtime_error("Failed to enumerate physical devices");
-		pAvailablePhysicalDevices = new VkPhysicalDevice[availablePhysicalDeviceCount];
-		if ((codeOfError = vkEnumeratePhysicalDevices(self, &availablePhysicalDeviceCount, pAvailablePhysicalDevices)) != VK_SUCCESS)
-			throw std::runtime_error("Failed to enumerate physical devices");
+		uint32_t	count{0};
+
+		codeOfError = vkEnumerateInstanceLayerProperties(&count, nullptr);
+		THROW_EXCEPTION_IN_CASE_OF_ERROR("Failed to enumerate instance layer properties");
+		availableLayers.resize(count);
+		codeOfError = vkEnumerateInstanceLayerProperties(&count, availableLayers.data());
+		THROW_EXCEPTION_IN_CASE_OF_ERROR("Failed to enumerate instance layer properties");
 	}
-	size ? *size = availablePhysicalDeviceCount : false;
-	return (pAvailablePhysicalDevices);
+	return (availableLayers);
 }
 
-void Instance2::setLayers(const char **desiredLayers, uint32_t size)
+std::vector<VkExtensionProperties>	&FbInstance2::getExtensions(const char *pLayerName)
 {
-	safeCall(getLayers);
-	for (int i = 0; i < availableLayersCount; ++i)
-		for (int j = 0; j < size; ++j)
-			if (!strcmp(desiredLayers[i], pAvailableLayers[i].))
+	if (!availableExtensions.size())
+	{
+		uint32_t	count{0};
 
-		if (isLayerSuitable(pAvailableLayers[i], desiredLayers, size))
+		codeOfError = vkEnumerateInstanceExtensionProperties(pLayerName, &count, nullptr);
+		THROW_EXCEPTION_IN_CASE_OF_ERROR("Failed to enumerate instance extension properties");
+		availableExtensions.resize(count);
+		codeOfError = vkEnumerateInstanceExtensionProperties(nullptr, &count, availableExtensions.data());
+		THROW_EXCEPTION_IN_CASE_OF_ERROR("Failed to enumerate instance extension properties");
+	}
+	return (availableExtensions);
+}
+
+std::vector<VkPhysicalDevice>	&FbInstance2::getPhysicalDevices()
+{
+	if (!availablePhysicalDevices.size())
+	{
+		uint32_t	count{0};
+
+		codeOfError = vkEnumeratePhysicalDevices(self, &count, nullptr);
+		THROW_EXCEPTION_IN_CASE_OF_ERROR("Failed to enumerate physical devices");
+		availablePhysicalDevices.resize(count);
+		codeOfError = vkEnumeratePhysicalDevices(self, &count, availablePhysicalDevices.data());
+		THROW_EXCEPTION_IN_CASE_OF_ERROR("Failed to enumerate phsyical devices");
+	}
+	return (availablePhysicalDevices);
+}
+
+void FbInstance2::setAppInfo(const char *pName, uint32_t appVersion, const char *pEngineName,
+								uint32_t engineVersion, uint32_t vulkanVersion, void *pNext)
+{
+	sApplicationInfo =
+	{
+		VK_STRUCTURE_TYPE_APPLICATION_INFO,
+		pNext,
+		pName,
+		appVersion,
+		pEngineName,
+		engineVersion,
+		vulkanVersion
+	};
+	sCreateInfo.pApplicationInfo = &sApplicationInfo;
+}
+
+void FbInstance2::setLayers(std::vector<char *> &desiredLayers)
+{
+	SAFECALL(getLayers);
+	for (int i = 0; i < availableLayers.size(); ++i)
+		if (isLayerSuitable(availableLayers[i], desiredLayers, size))
 			((char **)sCreateInfo.ppEnabledLayerNames)[sCreateInfo.enabledLayerCount++] = pAvailableLayers[i].layerName;
 }
 
@@ -143,14 +129,9 @@ void Instance2::setExtensions(const char **desiredExtensions, uint32_t size)
 					= pAvailableExtensions[i].extensionName;
 }
 
-void Instance2::setAppInfo(const char *pName, uint32_t appVersion, const char *pEngineName, uint32_t engineVersion, uint32_t vulkanVersion)
+void FbInstance2::setAppInfo(const char *pName, uint32_t appVersion, const char *pEngineName, uint32_t engineVersion, uint32_t vulkanVersion)
 {
-	sApplicationInfo.pApplicationName	= pName;
-	sApplicationInfo.applicationVersion	= appVersion;
-	sApplicationInfo.pEngineName		= pEngineName;
-	sApplicationInfo.engineVersion		= engineVersion;
-	sApplicationInfo.apiVersion			= vulkanVersion;
-	sCreateInfo.pApplicationInfo		= &sApplicationInfo;
+
 }
 
 bool Instance2::isLayerSuitable(VkLayerProperties sLayer, const char **desiredLayers, uint32_t size)

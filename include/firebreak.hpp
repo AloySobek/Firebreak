@@ -16,46 +16,22 @@
 # define WIDTH	1920
 # define HEIGHT	1080
 # define SAFEMODE
+
 /*
 **	Mode bits
 */
-# define FINISH_HIM			0x01
+
 /*
 **
 */
 
-# define APPLE	1
-# define WIN32	2
-# define WIN64	3
-# define UNIX	4
-
-#ifdef __APPLE__
-# define OS APPLE
-#elif __WIN32__
-# define OS WIN32
-#elif __WIN64__
-# define OS WIN64
-#elif __unix__
-# define OS UNIX
-#endif
-
-#ifdef NDEBUG
-	const bool validationLayers = false;
-#else
-	const bool validationLayers = true;
-#endif
-
 #ifdef SAFEMODE
 	# define THROW_EXCEPTION_IN_CASE_OF_ERROR(x) if (codeOfError != VK_SUCCESS) throw std::runtime_error(x);
+	# define SAFECALL(x) try { x(); } catch (const std::exception &error){ std::cerr << error.what() << std::endl; exit(EXIT_FAILURE); }
 #else
-	# define THROW_EXCEPTION_IN_CASE_OF_ERROR(x)
+	# define THROW_EXCEPTION_IN_CASE_OF_ERROR
+	# define SAFECALL(x) x()
 #endif
-
-# ifdef SAFEMODE
-	#define safeCall(x) try { x(); } catch (const std::exception &error){ std::cerr << error.what() << std::endl; exit(EXIT_FAILURE); }
-# else
-	#define safeCall(x) x()
-# endif
 
 class Surface;
 class Instance;
@@ -71,12 +47,12 @@ class Device;
 # include <vulkan/vulkan.h>
 # include <initializer_list>
 
-# include "fbClassDevice.hpp"
-# include "fbClassSurface.hpp"
 # include "fbClassInstance.hpp"
-# include "fbClassRender.hpp"
-# include "fbClassBuffer.hpp"
+# include "fbClassDevice.hpp"
 # include "fbClassImage.hpp"
+# include "fbClassBuffer.hpp"
+# include "fbClassSurface.hpp"
+# include "fbClassRender.hpp"
 # include "fbClassPipeline.hpp"
 # include "fbClassSemaphore.hpp"
 # include "fbClassQueue.hpp"

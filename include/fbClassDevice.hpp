@@ -15,22 +15,22 @@
 
 # include "firebreak.hpp"
 
-class Device
+class FbDevice
 {
 	public:
-		Device(VkDeviceCreateInfo info = {}, VkAllocationCallbacks allocation = {});
-		Device(VkAllocationCallbacks allocation) : Device({}, allocation) { }
+		FbDevice(VkDeviceCreateInfo info = {}, VkAllocationCallbacks allocation = {});
+		FbDevice(VkAllocationCallbacks allocation) : FbDevice({}, allocation) { }
 
-		virtual VkDevice				&getSelf();
-		virtual VkPhysicalDevice		&getPhysicalSelf();
-		virtual VkDeviceCreateInfo		&getCreateInfo();
-		virtual VkAllocationCallbacks	&getAllocation();
-		virtual int32_t					getErrorCode();
+		virtual VkDevice				&getSelf()			{ assert(self); return (self); }
+		virtual VkPhysicalDevice		&getPhysicalSelf()	{ assert(physicalSelf); return (physicalSelf); }
+		virtual VkDeviceCreateInfo		&getCreateInfo()	{ return (sCreateInfo); }
+		virtual VkAllocationCallbacks	&getAllocation()	{ return (sAllocation); }
+		virtual int32_t					getErrorCode()		{ return (codeOfError); }
 
 		virtual void create();
 		virtual void destroy();
 
-		virtual ~Device();
+		virtual ~FbDevice() { destroy(); }
 
 	protected:
 		VkDevice				self			= VK_NULL_HANDLE;
@@ -41,7 +41,7 @@ class Device
 		int32_t codeOfError;
 };
 
-class Device2 : public Device
+class FbDevice2 : public FbDevice
 {
 	public:
 		Device2() : Device() { }

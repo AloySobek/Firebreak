@@ -15,21 +15,21 @@
 
 # include "firebreak.hpp"
 
-class Instance
+class FbInstance
 {
 	public:
-		Instance(VkInstanceCreateInfo info = {}, VkAllocationCallbacks allocation = {});
-		Instance(VkAllocationCallbacks allocation = {}) : Instance({}, allocation) { }
+		FbInstance(VkInstanceCreateInfo info = {}, VkAllocationCallbacks allocation = {});
+		FbInstance(VkAllocationCallbacks allocation) : FbInstance({}, allocation) { }
 
-		virtual VkInstance				&getSelf();
-		virtual VkInstanceCreateInfo	&getCreateInfo();
-		virtual VkAllocationCallbacks	&getAllocation();
-		virtual int32_t					getErrorCode();
+		VkInstance				&getSelf()			{ assert(self); return (self); }
+		VkInstanceCreateInfo	&getCreateInfo()	{ return (sCreateInfo); }
+		VkAllocationCallbacks	&getAllocation()	{ return (sAllocation); }
+		int32_t					getErrorCode()		{ return (codeOfError); }
 
 		virtual void	create();
 		virtual void	destroy();
 
-		virtual ~Instance();
+		virtual ~FbInstance() { destroy(); }
 
 	protected:
 		VkInstance				self;
@@ -40,39 +40,39 @@ class Instance
 };
 
 /*
-** This border to the next layer of firebreak framework <><><><><><><><><><><><><><><><><>
-** This border to the next layer of firebreak framework <><><><><><><><><><><><><><><><><>
-** This border to the next layer of firebreak framework <><><><><><><><><><><><><><><><><>
+** This border to the next layer of firebreak framework <><><><><><><><><><><><>
+** This border to the next layer of firebreak framework <><><><><><><><><><><><>
+** This border to the next layer of firebreak framework <><><><><><><><><><><><>
 */
 
-class Instance2 : protected Instance
+static std::vector<char *> namesStub{VK_NULL_HANDLE};
+
+class FbInstance2 : protected FbInstance
 {
 	public:
-		Instance2();
-		Instance2(Instance2 &anotherInstance);
-		Instance2(VkInstanceCreateInfo &sInstanceCreateInfo);
+		FbInstance2(std::vector<char *>	&layers);
+		FbInstance2(std::vector<char *>	&extensions = namesStub, std::vector<char *> &layers = namesStub);
 
-		virtual VkInstance		&getSelf() override;
-		VkLayerProperties		*getLayers(uint32_t *size = nullptr);
-		VkExtensionProperties	*getExtensions(uint32_t *size = nullptr);
-		VkPhysicalDevice		*getPhysicalDevices(uint32_t *size = nullptr);
+		std::vector<VkLayerProperties>		&getLayers();
+		std::vector<VkExtensionProperties>	&getExtensions(const char *pLayerName = nullptr);
+		std::vector<VkPhysicalDevice>		&getPhysicalDevices();
 
-		void	setAppInfo(const char *pName, uint32_t appVersion, const char *pEngineName, uint32_t engineVersion, uint32_t vulkanVersion = VK_VERSION_1_0);
-		void	setLayers(const char **desiredLayers, uint32_t size);
-		void	setExtensions(const char **desiredExtensions, uint32_t size);
+		void setAppInfo(const char *pName, uint32_t appVersion, const char *pEngineName,
+							uint32_t engineVersion, uint32_t vulkanVersion = VK_VERSION_1_1, void *pNext = nullptr);
+		void setLayers(std::vector<char *> &desiredLayers);
+		void setExtensions(std::vector<char *> &desiredExtensions);
+		void setNext(void *pNext) { assert(pNext); sCreateInfo.pNext = pNext; }
+
+		void create(VkInstanceCreateFlags flags = 0);
 
 	public:
-		VkApplicationInfo		sApplicationInfo			= {};
+		VkApplicationInfo					sApplicationInfo;
 
-		VkLayerProperties		*pAvailableLayers			= nullptr;
-		VkExtensionProperties	*pAvailableExtensions		= nullptr;
-		VkPhysicalDevice		*pAvailablePhysicalDevices	= nullptr;
-
-		uint32_t availableLayersCount			= 0;
-		uint32_t availableExtensionsCount		= 0;
-		uint32_t availablePhysicalDeviceCount	= 0;
-
-		bool	isLayerSuitable(VkLayerProperties sLayer, const char **desiredLayers, uint32_t size);
+		std::vector<VkLayerProperties>		availableLayers;
+		std::vector<VkExtensionProperties>	availableExtensions;
+		std::vector<VkPhysicalDevice>		availablePhysicalDevices;
+		std::vector<char *>					selectedLayers;
+		std::vector<char *>					selectedExtensions;
 };
 
 #endif
