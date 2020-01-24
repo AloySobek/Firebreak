@@ -36,6 +36,9 @@
 class Surface;
 class Instance;
 class Device;
+class DeviceMemory;
+class Fence;
+class Cache;
 
 # include <vector>
 # include <cassert>

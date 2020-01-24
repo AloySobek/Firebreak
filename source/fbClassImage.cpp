@@ -12,54 +12,54 @@
 
 #include "firebreak.hpp"
 
-VkImage	Image::getSelf()
-{
-	return (self);
-}
+// VkImage	Image::getSelf()
+// {
+// 	return (self);
+// }
 
-VkImageCreateInfo	*Image::getCreateInfo()
-{
-	return (&sCreateInfo);
-}
+// VkImageCreateInfo	*Image::getCreateInfo()
+// {
+// 	return (&sCreateInfo);
+// }
 
-VkAllocationCallbacks	*Image::getAllocationInfo()
-{
-	return (&sAllocation);
-}
+// VkAllocationCallbacks	*Image::getAllocationInfo()
+// {
+// 	return (&sAllocation);
+// }
 
-VkImageViewCreateInfo	*Image::getImageViewCreateInfo()
-{
-	return (&sImageViewCreateInfo);
-}
+// VkImageViewCreateInfo	*Image::getImageViewCreateInfo()
+// {
+// 	return (&sImageViewCreateInfo);
+// }
 
-VkImageSubresource	*Image::getImageSubresource(Device &device)
-{
-	if (!subresourceChecked)
-	{
-		vkGetImageSubresourceLayout(device.getSelf(), self, &sImageSubresource, &sImageSubresourceLayout);
-		subresourceChecked = true;
-	}
-	return (&sImageSubresource);
-}
+// VkImageSubresource	*Image::getImageSubresource(Device &device)
+// {
+// 	if (!subresourceChecked)
+// 	{
+// 		vkGetImageSubresourceLayout(device.getSelf(), self, &sImageSubresource, &sImageSubresourceLayout);
+// 		subresourceChecked = true;
+// 	}
+// 	return (&sImageSubresource);
+// }
 
-VkSubresourceLayout	*Image::getImageSubresourceLayout(Device &device)
-{
-	if (subresourceChecked)
-	{
-		vkGetImageSubresourceLayout(device.getSelf(), self, &sImageSubresource, &sImageSubresourceLayout);
-		subresourceChecked = true;
-	}
-	return (&sImageSubresourceLayout);
-}
+// VkSubresourceLayout	*Image::getImageSubresourceLayout(Device &device)
+// {
+// 	if (subresourceChecked)
+// 	{
+// 		vkGetImageSubresourceLayout(device.getSelf(), self, &sImageSubresource, &sImageSubresourceLayout);
+// 		subresourceChecked = true;
+// 	}
+// 	return (&sImageSubresourceLayout);
+// }
 
-void	Image::create(Device &device)
-{
-	codeOfError = vkCreateImage(device.getSelf(), &sCreateInfo, sAllocation.pfnAllocation ? &sAllocation : nullptr, &self);
-	THROW_EXCEPTION("Failed to create iamge");
-}
+// void	Image::create(Device &device)
+// {
+// 	codeOfError = vkCreateImage(device.getSelf(), &sCreateInfo, sAllocation.pfnAllocation ? &sAllocation : nullptr, &self);
+// 	THROW_EXCEPTION("Failed to create iamge");
+// }
 
-void	Image::createView(Device &device)
-{
-	codeOfError = vkCreateImageView(device.getSelf(), &sImageViewCreateInfo, sAllocation.pfnAllocation ? & sAllocation : nullptr, &pViews[viewCount++]);
-	THROW_EXCEPTION("Failed to create image view");
-}
+// void	Image::createView(Device &device)
+// {
+// 	codeOfError = vkCreateImageView(device.getSelf(), &sImageViewCreateInfo, sAllocation.pfnAllocation ? & sAllocation : nullptr, &pViews[viewCount++]);
+// 	THROW_EXCEPTION("Failed to create image view");
+// }

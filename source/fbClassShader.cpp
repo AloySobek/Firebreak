@@ -42,8 +42,8 @@ int32_t	Shader::getCodeOfError()
 	return (codeOfError);
 }
 
-void	Shader::create(Device &device)
-{
-	codeOfError = vkCreateShaderModule(device.getSelf(), &sCreateInfo, sAllocation.pfnAllocation ? &sAllocation : nullptr, &self);
-	THROW_EXCEPTION("Failed to create shader module");
-}
+// void	Shader::create(Device &device)
+// {
+// 	codeOfError = vkCreateShaderModule(device.getSelf(), &sCreateInfo, sAllocation.pfnAllocation ? &sAllocation : nullptr, &self);
+// 	THROW_EXCEPTION("Failed to create shader module");
+// }

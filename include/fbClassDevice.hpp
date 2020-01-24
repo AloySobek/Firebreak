@@ -44,7 +44,7 @@ class FbDevice
 class FbDevice2 : public FbDevice
 {
 	public:
-		Device2() : Device() { }
+		FbDevice2() : FbDevice() { }
 
 		VkPhysicalDeviceFeatures			*getFeatures();
 		VkPhysicalDeviceProperties			*getProperties();

@@ -12,47 +12,47 @@
 
 #include "firebreak.hpp"
 
-RenderPass::RenderPass()
-{
-	sCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-}
+// RenderPass::RenderPass()
+// {
+// 	sCreateInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+// }
 
-VkRenderPass			RenderPass::getSelf()
-{
-	assert(self);
-	return (self);
-}
+// VkRenderPass			RenderPass::getSelf()
+// {
+// 	assert(self);
+// 	return (self);
+// }
 
-VkRenderPassCreateInfo	*RenderPass::getCreateInfo()
-{
-	return (&sCreateInfo);
-}
+// VkRenderPassCreateInfo	*RenderPass::getCreateInfo()
+// {
+// 	return (&sCreateInfo);
+// }
 
-VkAttachmentDescription *RenderPass::getColorAttachmentDescription()
-{
-	return (&sColorAttachment);
-}
+// VkAttachmentDescription *RenderPass::getColorAttachmentDescription()
+// {
+// 	return (&sColorAttachment);
+// }
 
-VkAttachmentReference	*RenderPass::getColorAttachmentReference()
-{
-	return (&sColorAttachmentReference);
-}
+// VkAttachmentReference	*RenderPass::getColorAttachmentReference()
+// {
+// 	return (&sColorAttachmentReference);
+// }
 
-VkSubpassDescription	*RenderPass::getSubpassDescription()
-{
-	return (&sSubpassDescription);
-}
+// VkSubpassDescription	*RenderPass::getSubpassDescription()
+// {
+// 	return (&sSubpassDescription);
+// }
 
-VkSubpassDependency		*RenderPass::getSubpassDependency()
-{
-	return (&sSubpassDependency);
-}
+// VkSubpassDependency		*RenderPass::getSubpassDependency()
+// {
+// 	return (&sSubpassDependency);
+// }
 
-void RenderPass::create(Device &device, int mode)
-{
-	if ((codeOfError = vkCreateRenderPass(device.getSelf(), &sCreateInfo, mode ? &sAllocation : nullptr, &self)) != VK_SUCCESS)
-	{
-		std::cout << "Code of error " << codeOfError << std::endl;
-		throw std::runtime_error("Failed to create render pass");
-	}
-}
+// void RenderPass::create(Device &device, int mode)
+// {
+// 	if ((codeOfError = vkCreateRenderPass(device.getSelf(), &sCreateInfo, mode ? &sAllocation : nullptr, &self)) != VK_SUCCESS)
+// 	{
+// 		std::cout << "Code of error " << codeOfError << std::endl;
+// 		throw std::runtime_error("Failed to create render pass");
+// 	}
+// }

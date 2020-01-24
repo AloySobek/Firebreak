@@ -1,25 +1,51 @@
-cmake_minimum_required(VERSION 3.15.0)
+cmake_minimum_required(VERSION 3.0.0)
 
-project(Firebreak VERSION 0.1 DESCRIPTION "Firebreak framework")
+project(firebreak VERSION 0.0.1 DESCRIPTION "Wrapper above the VulkanAPI")
 
-include_directories(include /usr/local/include)
+if(UNIX)
+	message("\nBuilding for Linux...\n")
+endif()
 
-SET(GCC_COVERAGE_COMPILE_FLAGS "-std=c++14 -O3")
-SET(GCC_COVERAGE_LINK_FLAGS "")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
-SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
-file(GLOB SOURCES "source/*.cpp")
+include_directories(${PROJECT_SOURCE_DIR}/include $ENV{VULKAN_INCLUDE_PATH})
 
-add_library(firebreak SHARED ${SOURCES})
+set(GCC_COVERAGE_COMPILE_FLAGS "-std=c++14")
+set(GCC_COVERAGE_LINK_FLAGS "")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_COVERAGE_COMPILE_FLAGS}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${GCC_COVERAGE_LINK_FLAGS}")
 
-target_link_libraries(firebreak /usr/local/lib/libvulkan.1.1.121.dylib)
+set(SOURCE
+	${PROJECT_SOURCE_DIR}/source/fbClassAllocator.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassBuffer.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassBufferView.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassCache.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassCommandBuffer.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassCommandPool.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassComputePipeline.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassDevice.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassDeviceMemory.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassFence.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassGraphicsPipeline.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassImage.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassImageView.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassInstance.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassPipeline.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassQueue.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassRender.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassSemaphore.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassShader.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassSurface.cpp
+	${PROJECT_SOURCE_DIR}/source/fbClassSwapchain.cpp
+)
+add_library(${PROJECT_NAME} SHARED ${SOURCE})
 
-set_target_properties(firebreak PROPERTIES VERSION ${PROJECT_VERSION})
-set_target_properties(firebreak PROPERTIES SOVERSION 1)
-set_target_properties(firebreak PROPERTIES PUBLIC_HEADER include/firebreak.hpp)
-target_include_directories(firebreak PRIVATE include)
-target_include_directories(firebreak PRIVATE source)
-include(GNUInstallDirs)
-install(TARGETS firebreak LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-configure_file(firebreak.pc.in firebreak.pc @ONLY)
-install(FILES ${CMAKE_BINARY_DIR}/firebreak.pc DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)
+target_link_libraries(${PROJECT_NAME} $ENV{VULKAN_LIB_PATH}$ENV{VULKAN_LIB})
+
+#set_target_properties(firebreak PROPERTIES VERSION ${PROJECT_VERSION})
+#set_target_properties(firebreak PROPERTIES SOVERSION 1)
+#set_target_properties(firebreak PROPERTIES PUBLIC_HEADER include/firebreak.hpp)
+#target_include_directories(firebreak PRIVATE include)
+#target_include_directories(firebreak PRIVATE source)
+#include(GNUInstallDirs)
+#install(TARGETS firebreak LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+#configure_file(firebreak.pc.in firebreak.pc @ONLY)
+#install(FILES ${CMAKE_BINARY_DIR}/firebreak.pc DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig)

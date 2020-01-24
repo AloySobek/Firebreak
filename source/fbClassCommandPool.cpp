@@ -48,34 +48,34 @@ VkCommandBuffer		&CommandPool::getCommandBuffer(uint32_t group, uint32_t index)
 	return (ppCommandBuffers[group][index]);
 }
 
-int32_t		CommandPool::getErrorCode()
-{
-	vkCmdCopyImage()
-	return (codeOfError);
-}
+// int32_t		CommandPool::getErrorCode()
+// {
+// 	vkCmdCopyImage()
+// 	return (codeOfError);
+// }
 
-void CommandPool::create(Device &device)
-{
-	codeOfError = vkCreateCommandPool(device.getSelf(), &sCreateInfo, sAllocation.pfnAllocation ? &sAllocation : nullptr, &self);
-	THROW_EXCEPTION_IN_CASE_OF_ERROR("Failed to create command pool");
-}
+// void CommandPool::create(Device &device)
+// {
+// 	codeOfError = vkCreateCommandPool(device.getSelf(), &sCreateInfo, sAllocation.pfnAllocation ? &sAllocation : nullptr, &self);
+// 	THROW_EXCEPTION_IN_CASE_OF_ERROR("Failed to create command pool");
+// }
 
-void CommandPool::allocateCommandBuffers(Device &device)
-{
-	assert(sCommandBufferAllocateInfo.commandBufferCount > 0);
-	std::vector<VkCommandBuffer> bufferGroup;
-	bufferGroup.resize(sCommandBufferAllocateInfo.commandBufferCount);
-	codeOfError = vkAllocateCommandBuffers(device.getSelf(), &sCommandBufferAllocateInfo, bufferGroup.data());
-	THROW_EXCEPTION_IN_CASE_OF_ERROR("Failed to allocate command buffers from command pool");
-	ppCommandBuffers.push_back(bufferGroup);
-}
+// void CommandPool::allocateCommandBuffers(Device &device)
+// {
+// 	assert(sCommandBufferAllocateInfo.commandBufferCount > 0);
+// 	std::vector<VkCommandBuffer> bufferGroup;
+// 	bufferGroup.resize(sCommandBufferAllocateInfo.commandBufferCount);
+// 	codeOfError = vkAllocateCommandBuffers(device.getSelf(), &sCommandBufferAllocateInfo, bufferGroup.data());
+// 	THROW_EXCEPTION_IN_CASE_OF_ERROR("Failed to allocate command buffers from command pool");
+// 	ppCommandBuffers.push_back(bufferGroup);
+// }
 
-void CommandPool::freeCommandBuffers(Device &device)
-{
-	vkFreeCommandBuffers(device.getSelf(), self, ppCommandBuffers[ppCommandBuffers.size() - 1].size(), ppCommandBuffers[ppCommandBuffers.size() - 1].data());
-	ppCommandBuffers[ppCommandBuffers.size() - 1].~vector();
-	ppCommandBuffers.pop_back();
-}
+// void CommandPool::freeCommandBuffers(Device &device)
+// {
+// 	vkFreeCommandBuffers(device.getSelf(), self, ppCommandBuffers[ppCommandBuffers.size() - 1].size(), ppCommandBuffers[ppCommandBuffers.size() - 1].data());
+// 	ppCommandBuffers[ppCommandBuffers.size() - 1].~vector();
+// 	ppCommandBuffers.pop_back();
+// }
 
 void CommandPool::beginCommandBuffer(uint32_t index, uint32_t group)
 {
@@ -134,14 +134,14 @@ void CommandPool::cmdCopy(Buffer &srcBuffer, Buffer &dstBuffer, uint32_t regionC
 	vkCmdCopyBuffer(ppCommandBuffers[group][index], srcBuffer.getSelf(), dstBuffer.getSelf(), regionCount, pRegions);
 }
 
-void CommandPool::reset(Device &device, VkCommandPoolResetFlags flags)
-{
-	codeOfError = vkResetCommandPool(device.getSelf(), self, flags);
-	THROW_EXCEPTION_IN_CASE_OF_ERROR("Failed to reset command pool");
-}
+// void CommandPool::reset(Device &device, VkCommandPoolResetFlags flags)
+// {
+// 	codeOfError = vkResetCommandPool(device.getSelf(), self, flags);
+// 	THROW_EXCEPTION_IN_CASE_OF_ERROR("Failed to reset command pool");
+// }
 
-void CommandPool::destroy(Device &device)
-{
-	vkDestroyCommandPool(device.getSelf(), self, sAllocation.pfnFree ? &sAllocation : nullptr);
-	self = VK_NULL_HANDLE;
-}
+// void CommandPool::destroy(Device &device)
+// {
+// 	vkDestroyCommandPool(device.getSelf(), self, sAllocation.pfnFree ? &sAllocation : nullptr);
+// 	self = VK_NULL_HANDLE;
+// }

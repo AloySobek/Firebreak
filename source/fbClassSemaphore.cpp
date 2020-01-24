@@ -33,11 +33,11 @@ VkAllocationCallbacks	*Semaphore::getAllocation()
 	return (&sAllocation);
 }
 
-void Semaphore::create(Device &device, int mode)
-{
-	if ((codeOfError = vkCreateSemaphore(device.getSelf(), &sCreateInfo, mode ? &sAllocation : nullptr, &self)) != VK_SUCCESS)
-	{
-		std::cout << "Code of error: " << codeOfError << std::endl;
-		throw	std::runtime_error("Failed to create semaphore");
-	}
-}
+// void Semaphore::create(Device &device, int mode)
+// {
+// 	if ((codeOfError = vkCreateSemaphore(device.getSelf(), &sCreateInfo, mode ? &sAllocation : nullptr, &self)) != VK_SUCCESS)
+// 	{
+// 		std::cout << "Code of error: " << codeOfError << std::endl;
+// 		throw	std::runtime_error("Failed to create semaphore");
+// 	}
+// }
