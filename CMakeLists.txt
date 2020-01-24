@@ -38,6 +38,12 @@ set(SOURCE
 )
 add_library(${PROJECT_NAME} SHARED ${SOURCE})
 
+set(${BINARY_DIR} "${CMAKE_BINARY_DIR}")
+set(${CMAKE_LIBRARY_OUTPUT_DIRECTORY} "${BINARY_DIR}/lib")
+set(${CMAKE_ARCHIVE_OUTPUT_DIRECTORY} "${BINARY_DIR}/lib")
+# For sample code in the future:
+set(${CMAKE_RUNTIME_OUTPUT_DIRECTORY} "${BINARY_DIR}/bin")
+
 target_link_libraries(${PROJECT_NAME} $ENV{VULKAN_LIB_PATH}$ENV{VULKAN_LIB})
 
 #set_target_properties(firebreak PROPERTIES VERSION ${PROJECT_VERSION})
